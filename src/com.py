@@ -37,12 +37,13 @@ class CSkip(Com):
 class CAssign(Com):
     def __init__(self, var, exp):
         super().__init__(typename="CASSIGN")
-        self.var = var
+        var.parent = self
         exp.parent = self
 
     def exec(self, state):
-        value = self.children[0].eval(state)
-        state[self.var] = value
+        var, exp = self.children
+        value = exp.eval(state)
+        state[var.name] = value             # should var be a string or an aexp?
         return state
 
 
@@ -59,9 +60,27 @@ class CSequence(Com):
         return state
 
 
+class CIf(Com):
+    def __init__(self, bexp, ctrue, cfalse=CSkip()):
+        super().__init__(typename="CIF")
+        bexp.parent = self
+        ctrue.parent = self
+        cfalse.parent = self
+        # hope: self.children is properly ordered
+
+    def exec(self, state):
+        bexp, ctrue, cfalse = self.children
+        if bexp.eval(state):
+            return ctrue.exec(state)
+        else:
+            return cfalse.exec(state)
+
+
 if __name__ == '__main__':
     from aexp import *
+    from bexp import *
     from anytree import RenderTree
-    ast = CSequence(CSkip(), CSequence(CAssign('X', ABinOp('+', AConstant(1), AConstant(1))), CSkip()))
+    ast = CSequence(CSkip(), CSequence(CAssign(AVariable('X'), ABinOp('+', AConstant(1), AConstant(1))), CSkip()))
+    ast = CIf(BBinOp('==', AVariable('X'), AConstant(0)), CAssign(AVariable('Y'), AConstant(1)))
     print(RenderTree(ast))
-    print(ast.exec({}))
+    print(ast.exec({'X': 0}))
