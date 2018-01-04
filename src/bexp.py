@@ -14,12 +14,12 @@ Sources
 from anytree import AnyNode
 
 
-class AExp(AnyNode):
+class BExp(AnyNode):
     """
     Arithmetic expressions.
     """
 
-    def __init__(self, typename="AEXP", **kwargs):
+    def __init__(self, typename="BEXP", **kwargs):
         """[summary]
 
         Arguments:
@@ -30,67 +30,71 @@ class AExp(AnyNode):
         self.typename = typename
 
 
-class AConstant(AExp):
+class BConstant(BExp):
     """
-    Constant values, namely integers.
+    Constant values, namely bool.
     """
 
     def __init__(self, value):
-        super().__init__(typename="ACONSTANT")
+        super().__init__(typename="BCONSTANT")
         self.value = value
 
     def eval(self, state):
         return self.value
 
 
-class AVariable(AExp):
+class BVariable(BExp):
     """
     Named variables.
     """
 
     def __init__(self, name):
-        super().__init__(typename="AVARIABLE")
+        super().__init__(typename="BVARIABLE")
         self.name = name
 
     def eval(self, state):
         return state[self.name]
 
 
-class AUnOp(AExp):
+class BUnOp(BExp):
     """
     Unary operators.
     """
 
-    OPERATORS = {
-        '+': '__pos__',
-        '-': '__neg__',
-        '.': '__abs__',
-    }
-
     def __init__(self, op, aexp):
-        super().__init__(typename="AUNOP")
-        self.op = op
+        super().__init__(typename="BUNOP")
+        if op in ['!']:
+            self.op = op
+        else:
+            raise TypeError("Unknown unary boolean operator {}".format(self.op))
         aexp.parent = self
 
     def eval(self, state):
         value = self.children[0].eval(state)
-        return getattr(value, self.OPERATORS[self.op])()
+        if self.op == '!':
+            return not value
+        else:
+            raise TypeError("Unknown unary boolean operator {}".format(self.op))
 
-class ABinOp(AExp):
+
+class BBinOp(BExp):
     """
     Binary operators.
     """
 
     OPERATORS = {
-        '+': '__add__',
-        '-': '__sub__',
-        '*': '__mul__',
-        '%': '__mod__',
-        '^': '__pow__',
+        '&&': '__and__',
+        '||': '__or__',
+        '^':  '__xor__',
+        '==': '__eq__',
+        '<':  '__lt__',
+        '<=': '__le__',
+        '>':  '__gt__',
+        '>=': '__ge__',
     }
 
     def __init__(self, op, left, right):
-        super().__init__(typename="ABINOP")
+        super().__init__(typename="BBINOP")
         self.op = op
         left.parent = self
         right.parent = self
@@ -103,7 +107,8 @@ class ABinOp(AExp):
 
 
 if __name__ == '__main__':
+    from aexp import *
     from anytree import RenderTree
-    ast = ABinOp('+', AVariable('X'), AUnOp('-', AConstant(2)))
+    ast = BBinOp('&&', BVariable('X'), BUnOp('!', BConstant(False)))
     print(RenderTree(ast))
-    print(ast.eval({'X': 1}))
+    print(ast.eval({'X': True}))
