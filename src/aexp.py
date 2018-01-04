@@ -49,6 +49,12 @@ class AUnOp(AExp):
     Unary operators.
     """
 
+    OPERATORS = {
+        '+': '__pos__',
+        '-': '__neg__',
+        '.': '__abs__',
+    }
+
     def __init__(self, op, aexp):
         super().__init__(typename="AUNOP")
         self.op = op
@@ -56,11 +62,7 @@ class AUnOp(AExp):
 
     def eval(self):
         value = self.children[0].eval()
-        if self.op == '-':
-            return (- value)
-        else:
-            raise TypeError("Undefined unary operator {op}".format(op=self.op))
-
+        return getattr(value, self.OPERATORS[self.op])()
 
 class ABinOp(AExp):
     """
@@ -71,8 +73,8 @@ class ABinOp(AExp):
         '+': '__add__',
         '-': '__sub__',
         '*': '__mul__',
-        '/': '__div__',
         '%': '__mod__',
+        '^': '__pow__',
     }
 
     def __init__(self, op, left, right):
