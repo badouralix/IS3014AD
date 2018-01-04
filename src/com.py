@@ -66,7 +66,6 @@ class CIf(Com):
         bexp.parent = self
         ctrue.parent = self
         cfalse.parent = self
-        # hope: self.children is properly ordered
 
     def exec(self, state):
         bexp, ctrue, cfalse = self.children
@@ -75,6 +74,20 @@ class CIf(Com):
         else:
             return cfalse.exec(state)
 
+class CWhile(Com):
+    def __init__(self, bexp, com):
+        super().__init__(typename="CWHILE")
+        bexp.parent = self
+        com.parent = self
+
+    def exec(self, state):
+        bexp, com = self.children
+        if bexp.eval(state):
+            com.exec(state)
+            return self.exec(state)
+        else:
+            return state
+
 
 if __name__ == '__main__':
     from aexp import *
@@ -82,5 +95,6 @@ if __name__ == '__main__':
     from anytree import RenderTree
     ast = CSequence(CSkip(), CSequence(CAssign(AVariable('X'), ABinOp('+', AConstant(1), AConstant(1))), CSkip()))
     ast = CIf(BBinOp('==', AVariable('X'), AConstant(0)), CAssign(AVariable('Y'), AConstant(1)))
+    ast = CWhile(BBinOp('!=', AVariable('X'), AConstant(5)), CAssign(AVariable('X'), ABinOp('+', AVariable('X'), AConstant(1))))
     print(RenderTree(ast))
     print(ast.exec({'X': 0}))
