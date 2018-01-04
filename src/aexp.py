@@ -40,8 +40,21 @@ class AConstant(AExp):
         super().__init__(typename="ACONSTANT")
         self.value = value
 
-    def eval(self):
+    def eval(self, state):
         return self.value
+
+
+class AVariable(AExp):
+    """
+    Named variables.
+    """
+
+    def __init__(self, name):
+        super().__init__(typename="AVARIABLE")
+        self.name = name
+
+    def eval(self, state):
+        return state[self.name]
 
 
 class AUnOp(AExp):
@@ -60,8 +73,8 @@ class AUnOp(AExp):
         self.op = op
         aexp.parent = self
 
-    def eval(self):
-        value = self.children[0].eval()
+    def eval(self, state):
+        value = self.children[0].eval(state)
         return getattr(value, self.OPERATORS[self.op])()
 
 class ABinOp(AExp):
@@ -83,15 +96,15 @@ class ABinOp(AExp):
         left.parent = self
         right.parent = self
 
-    def eval(self):
+    def eval(self, state):
         nodes = self.children
-        left = nodes[0].eval()
-        right = nodes[1].eval()
+        left = nodes[0].eval(state)
+        right = nodes[1].eval(state)
         return getattr(left, self.OPERATORS[self.op])(right)
 
 
 if __name__ == '__main__':
     from anytree import RenderTree
-    ast = ABinOp('+', AConstant(1), AUnOp('-', AConstant(2)))
+    ast = ABinOp('+', AVariable('X'), AUnOp('-', AConstant(2)))
     print(RenderTree(ast))
-    print(ast.eval())
+    print(ast.eval({'X': 1}))
