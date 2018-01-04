@@ -12,8 +12,8 @@ Sources
 
 """
 
-
 from anytree import AnyNode
+
 
 class AExp(AnyNode):
     """
@@ -44,6 +44,24 @@ class AConstant(AExp):
         return self.value
 
 
+class AUnOp(AExp):
+    """
+    Unary operators.
+    """
+
+    def __init__(self, op, aexp):
+        super().__init__(typename="AUNOP")
+        self.op = op
+        aexp.parent = self
+
+    def eval(self):
+        value = self.children[0].eval()
+        if self.op == '-':
+            return (- value)
+        else:
+            raise TypeError("Undefined unary operator {op}".format(op=self.op))
+
+
 class ABinOp(AExp):
     """
     Binary operators.
@@ -57,7 +75,7 @@ class ABinOp(AExp):
         '%': '__mod__',
     }
 
-    def __init__(self, left, op, right):
+    def __init__(self, op, left, right):
         super().__init__(typename="ABINOP")
         self.op = op
         left.parent = self
@@ -72,6 +90,6 @@ class ABinOp(AExp):
 
 if __name__ == '__main__':
     from anytree import RenderTree
-    ast = ABinOp(AConstant(1), '+', AConstant(2))
+    ast = ABinOp('+', AConstant(1), AUnOp('-', AConstant(2)))
     print(RenderTree(ast))
     print(ast.eval())
