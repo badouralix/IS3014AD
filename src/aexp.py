@@ -85,8 +85,9 @@ class ABinOp(AExp):
         '+': '__add__',
         '-': '__sub__',
         '*': '__mul__',
+        '//': '__floordiv__',
         '%': '__mod__',
-        '^': '__pow__',
+        '**': '__pow__',
     }
 
     def __init__(self, op, left, right):
@@ -104,6 +105,6 @@ class ABinOp(AExp):
 
 if __name__ == '__main__':
     from anytree import RenderTree
-    ast = ABinOp('+', AVariable('X'), AUnOp('-', AConstant(2)))
+    ast = ABinOp('//', AVariable('X'), AUnOp('+', AConstant(2)))
     print(RenderTree(ast))
-    print(ast.eval({'X': 1}))
+    print(ast.eval({'X': 3}))
