@@ -23,7 +23,7 @@ class BExp(AnyNode):
         """[summary]
 
         Arguments:
-            type -- type of the Aexp
+            type -- type of the BExp
             kwargs -- optional keywords
         """
         super().__init__()

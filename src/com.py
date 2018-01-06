@@ -19,7 +19,7 @@ class Com(AnyNode):
         """[summary]
 
         Arguments:
-            type -- type of the Aexp
+            type -- type of the Com
             kwargs -- optional keywords
         """
         super().__init__()

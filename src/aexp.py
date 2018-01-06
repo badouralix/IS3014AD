@@ -23,7 +23,7 @@ class AExp(AnyNode):
         """[summary]
 
         Arguments:
-            type -- type of the Aexp
+            type -- type of the AExp
             kwargs -- optional keywords
         """
         super().__init__()
