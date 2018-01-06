@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from aexp import *
-from bexp import *
-from com import *
-
 import networkx as nx
 import matplotlib.pyplot as plt
+
+from astree.aexp import *
+from astree.bexp import *
+from astree.com import *
 
 
 def main():
