@@ -48,15 +48,14 @@ class CAssign(Com):
 
 
 class CSequence(Com):
-    def __init__(self, left, right):
+    def __init__(self, *args):
         super().__init__(typename="CSEQUENCE")
-        left.parent = self
-        right.parent = self
+        for arg in args:
+            arg.parent = self
 
     def exec(self, state):
-        left, right = self.children
-        left.exec(state)
-        right.exec(state)
+        for child in list(self.children):
+            child.exec(state)
         return state
 
 
@@ -96,5 +95,6 @@ if __name__ == '__main__':
     ast = CSequence(CSkip(), CSequence(CAssign(AVariable('X'), ABinOp('+', AConstant(1), AConstant(1))), CSkip()))
     ast = CIf(BBinOp('==', AVariable('X'), AConstant(0)), CAssign(AVariable('Y'), AConstant(1)))
     ast = CWhile(BBinOp('!=', AVariable('X'), AConstant(5)), CAssign(AVariable('X'), ABinOp('+', AVariable('X'), AConstant(1))))
+    ast = CSequence(CAssign(AVariable('X'), AConstant('1')), CAssign(AVariable('Y'), AConstant('2')), CAssign(AVariable('Z'), AConstant('3')))
     print(RenderTree(ast))
     print(ast.exec({'X': 0}))
