@@ -15,28 +15,30 @@ from anytree import AnyNode
 
 
 class Com(AnyNode):
-    def __init__(self, typename="COM", **kwargs):
+    def __init__(self, typename="COM", label=None, **kwargs):
         """[summary]
 
         Arguments:
-            type -- type of the Com
-            kwargs -- optional keywords
+            typename -- type of the Com
+            label    -- label of the Com for the labeled WHILE language
+            kwargs   -- optional keywords
         """
         super().__init__()
         self.typename = typename
+        self.label = label
 
 
 class CSkip(Com):
-    def __init__(self):
-        super().__init__(typename="CSKIP")
+    def __init__(self, label=None):
+        super().__init__(typename="CSKIP", label=label)
 
     def exec(self, state):
         return state
 
 
 class CAssign(Com):
-    def __init__(self, var, exp):
-        super().__init__(typename="CASSIGN")
+    def __init__(self, var, exp, label=None):
+        super().__init__(typename="CASSIGN", label=label)
         var.parent = self
         exp.parent = self
 
@@ -48,8 +50,8 @@ class CAssign(Com):
 
 
 class CSequence(Com):
-    def __init__(self, *args):
-        super().__init__(typename="CSEQUENCE")
+    def __init__(self, *args, label=None):
+        super().__init__(typename="CSEQUENCE", label=label)
         for arg in args:
             arg.parent = self
 
@@ -60,8 +62,8 @@ class CSequence(Com):
 
 
 class CIf(Com):
-    def __init__(self, bexp, ctrue, cfalse=CSkip()):
-        super().__init__(typename="CIF")
+    def __init__(self, bexp, ctrue, cfalse=CSkip(), label=None):
+        super().__init__(typename="CIF", label=label)
         bexp.parent = self
         ctrue.parent = self
         cfalse.parent = self
@@ -74,8 +76,8 @@ class CIf(Com):
             return cfalse.exec(state)
 
 class CWhile(Com):
-    def __init__(self, bexp, com):
-        super().__init__(typename="CWHILE")
+    def __init__(self, bexp, com, label=None):
+        super().__init__(typename="CWHILE", label=label)
         bexp.parent = self
         com.parent = self
 
@@ -95,6 +97,6 @@ if __name__ == '__main__':
     ast = CSequence(CSkip(), CSequence(CAssign(AVariable('X'), ABinOp('+', AConstant(1), AConstant(1))), CSkip()))
     ast = CIf(BBinOp('==', AVariable('X'), AConstant(0)), CAssign(AVariable('Y'), AConstant(1)))
     ast = CWhile(BBinOp('!=', AVariable('X'), AConstant(5)), CAssign(AVariable('X'), ABinOp('+', AVariable('X'), AConstant(1))))
-    ast = CSequence(CAssign(AVariable('X'), AConstant('1')), CAssign(AVariable('Y'), AConstant('2')), CAssign(AVariable('Z'), AConstant('3')))
+    ast = CSequence(CAssign(AVariable('X'), AConstant('1')), CAssign(AVariable('Y'), AConstant('2')), CAssign(AVariable('Z'), AConstant('3')), label=0)
     print(RenderTree(ast))
     print(ast.exec({'X': 0}))

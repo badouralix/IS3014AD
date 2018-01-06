@@ -16,7 +16,6 @@ def run_test(cfg, init_state):
         state -- [description]
     """
 
-
     state = init_state.copy()   # TODO: use another data struct than a dict
     current_node = "START"
     path = ["START"]
