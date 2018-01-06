@@ -17,3 +17,8 @@ When exec-ing a command, the new state is return from the exec call.
 But also, the previous state (a dict) is overriden with the new state.
 This can be avoided by deep-copying the state before making an assignement.
 What should we do?
+
+## TODO
+
+- implement "take a step" for `Com`
+- implement a data struct for the state with a copy method used in (cfgraph/utils.py)
