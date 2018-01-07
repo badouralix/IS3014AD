@@ -1,46 +1,30 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from collections import Counter
+# Add parentdir to import path
+import os, sys
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+
+from queue import Queue
+from astree.com import *
 
 
-def run_test(cfg, init_state):
-    """[summary]
+def get_assignments(cfg):
+    result = set()
 
-    Arguments:
-        cfg        -- [description]
-        init_state -- A test
+    for src, dest in cfg.edges:
+        edge = cfg.edges[src, dest]
+        if isinstance(edge['com'], CAssign):
+            result.add(src)
 
-    Returns:
-        path  -- [description]
-        state -- [description]
-    """
+    return result
 
-    state = init_state.copy()   # TODO: use another data struct than a dict
-    current_node = "START"
-    path = ["START"]
+# def get_k(cfg):
+#     reached_nodes = Queue()
+#     reached_nodes.put("START")
 
-    while current_node != "END":
-        for succ_node in cfg.successors(current_node):
-            edge = cfg.edges[current_node, succ_node]
-            if edge['bexp'].eval(state):
-                edge['com'].exec(state)
-                current_node = succ_node
-                break
+#     result = set()
 
-        path.append(current_node)
+#     while not reached_nodes.empty():
+#         node = reached_nodes.get(block=False)
 
-    return path, state
-
-
-def reachable_nodes(path):
-    """[summary]
-
-    Arguments:
-        path -- [description]
-
-    Returns:
-        [type] -- [description]
-    """
-
-    return Counter(path)

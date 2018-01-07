@@ -8,6 +8,7 @@ from astree.aexp import *
 from astree.bexp import *
 from astree.com import *
 from cfgraph.tests import *
+from cfgraph.utils import *
 
 
 def main():
@@ -28,11 +29,12 @@ def main():
     cfg.add_edge(5, "END", bexp=BConstant(True), com=CAssign(AVariable('X'), AConstant(1)))
     cfg.add_edge(6, "END", bexp=BConstant(True), com=CAssign(AVariable('X'), ABinOp('+', AVariable('X'), AConstant(1))))
 
-    print(run_test(cfg, {'X': 5}))
-
     # nx.draw(cfg, with_labels=True, font_weight='bold')
     # plt.show()
 
+    # print(run_test(cfg, {'X': -1}))
+
+    print(get_assignments(cfg))
 
 if __name__ == "__main__":
     main()
