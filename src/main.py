@@ -35,6 +35,7 @@ def main():
     # print(run_test(cfg, {'X': -1}))
 
     print(get_assignments(cfg))
+    print(get_decisions(cfg))
 
 if __name__ == "__main__":
     main()
