@@ -36,6 +36,7 @@ def main():
 
     print(get_assignments(cfg))
     print(get_decisions(cfg))
+    print(get_distances(cfg))
 
 if __name__ == "__main__":
     main()

@@ -55,12 +55,29 @@ def get_decisions(cfg):
 
     return result
 
-# def get_k(cfg):
-#     reached_nodes = Queue()
-#     reached_nodes.put("START")
 
-#     result = set()
+def get_distances(cfg):
+    """
+    Compute for each node the distance from the start node to it.
+    Basically a breath first traversing of the graph.
 
-#     while not reached_nodes.empty():
-#         node = reached_nodes.get(block=False)
+    Arguments:
+        cfg -- control flow graph of the input program
 
+    Returns:
+        result -- a dictionnary {node: distance to the start node}
+    """
+
+    reached_nodes = Queue()
+    reached_nodes.put("START")
+
+    result = {"START": 0}
+
+    while not reached_nodes.empty():
+        src = reached_nodes.get(block=False)
+        for dest in cfg.successors(src):
+            reached_nodes.put(dest)
+            if not dest in result:
+                result[dest] = result[src] + 1
+
+    return result
