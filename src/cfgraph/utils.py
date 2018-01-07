@@ -10,6 +10,16 @@ from astree.com import *
 
 
 def get_assignments(cfg):
+    """
+    Returns the set of all the labels of assignment instructions.
+
+    Arguments:
+        cfg -- control flow graph of the input program
+
+    Returns:
+        result -- set of labels
+    """
+
     result = set()
 
     for src, dest in cfg.edges:
@@ -18,6 +28,8 @@ def get_assignments(cfg):
             result.add(src)
 
     return result
+
+
 
 # def get_k(cfg):
 #     reached_nodes = Queue()
