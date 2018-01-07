@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from astree.aexp import *
 from astree.bexp import *
 from astree.com import *
-from cfgraph.utils import *
+from cfgraph.tests import *
 
 
 def main():
