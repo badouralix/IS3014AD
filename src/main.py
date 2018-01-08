@@ -9,6 +9,7 @@ from astree.bexp import *
 from astree.com import *
 from cfgraph.runners import run_test, reachable_nodes
 from cfgraph.tester import Tester
+from utils.printer import print_cfg
 
 
 def main():
@@ -32,16 +33,18 @@ def main():
     cfg.add_edge(5, "END", bexp=BConstant(True), com=CAssign(AVariable('X'), AConstant(1)))
     cfg.add_edge(6, "END", bexp=BConstant(True), com=CAssign(AVariable('X'), ABinOp('+', AVariable('X'), AConstant(1))))
 
+    print_cfg(cfg)
+
     # nx.draw(cfg, with_labels=True, font_weight='bold')
     # plt.show()
 
     # print(run_test(cfg, {'X': -1}))
 
-    tester = Tester(cfg)
-    print(tester.test_assignments(reachable_nodes(run_test(cfg, {'X': 0})[0])))
-    print(tester.test_decisions(reachable_nodes(run_test(cfg, {'X': 0})[0])))
-    print(tester.test_distance(reachable_nodes(run_test(cfg, {'X': 0})[0]), k=3))
-    print(tester.test_i_loop(reachable_nodes(run_test(cfg, {'X': 0})[0]), i=2))
+    # tester = Tester(cfg)
+    # print(tester.test_assignments(reachable_nodes(run_test(cfg, {'X': 0})[0])))
+    # print(tester.test_decisions(reachable_nodes(run_test(cfg, {'X': 0})[0])))
+    # print(tester.test_distance(reachable_nodes(run_test(cfg, {'X': 0})[0]), k=3))
+    # print(tester.test_i_loop(reachable_nodes(run_test(cfg, {'X': 0})[0]), i=2))
 
 if __name__ == "__main__":
     main()
