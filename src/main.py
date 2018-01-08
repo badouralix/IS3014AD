@@ -38,12 +38,13 @@ def main():
 
     # print(run_test(cfg, {'X': -1}))
 
-    print(get_while(cfg))
+    # print(get_loop(cfg))
 
-    # tester = Tester(cfg)
-    # print(tester.test_assignments(reachable_nodes(run_test(cfg, {'X': 0})[0])))
-    # print(tester.test_decisions(reachable_nodes(run_test(cfg, {'X': 0})[0])))
-    # print(tester.test_distance(reachable_nodes(run_test(cfg, {'X': 0})[0]), k=3))
+    tester = Tester(cfg)
+    print(tester.test_assignments(reachable_nodes(run_test(cfg, {'X': 0})[0])))
+    print(tester.test_decisions(reachable_nodes(run_test(cfg, {'X': 0})[0])))
+    print(tester.test_distance(reachable_nodes(run_test(cfg, {'X': 0})[0]), k=3))
+    print(tester.test_i_loop(reachable_nodes(run_test(cfg, {'X': 0})[0]), i=2))
 
 if __name__ == "__main__":
     main()

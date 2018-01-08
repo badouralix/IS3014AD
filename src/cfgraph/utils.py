@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# Add parentdir to import path
-import os, sys
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
-
 from queue import Queue
 from astree.bexp import BConstant
 from astree.com import CAssign
@@ -82,12 +78,12 @@ def get_distances(cfg):
 
     return result
 
-def get_while(cfg):
+def get_loop(cfg):
     result = set()
 
     for node, data in cfg.nodes().data():
         try:
-            if data["typename"] == "WHILE":
+            if data["typename"] == "CWHILE":
                 result.add(node)
         except:
             pass
