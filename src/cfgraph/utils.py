@@ -81,3 +81,15 @@ def get_distances(cfg):
                 result[dest] = result[src] + 1
 
     return result
+
+def get_while(cfg):
+    result = set()
+
+    for node, data in cfg.nodes().data():
+        try:
+            if data["typename"] == "WHILE":
+                result.add(node)
+        except:
+            pass
+
+    return result
