@@ -8,12 +8,12 @@ def run_test(cfg, init_state):
     """[summary]
 
     Arguments:
-        cfg        -- [description]
-        init_state -- A test
+        cfg        -- control flow graph of the input program
+        init_state -- a test
 
     Returns:
-        path  -- [description]
-        state -- [description]
+        path  -- path of the execution
+        state -- state after execution
     """
 
     state = init_state.copy()   # TODO: use another data struct than a dict
