@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 from astree.aexp import *
 from astree.bexp import *
 from astree.com import *
-from cfgraph.tests import *
-from cfgraph.utils import *
+from cfgraph.tests import run_test, reachable_nodes
+from cfgraph.tester import Tester
 
 
 def main():
@@ -33,10 +33,10 @@ def main():
     # plt.show()
 
     # print(run_test(cfg, {'X': -1}))
-
-    print(get_assignments(cfg))
-    print(get_decisions(cfg))
-    print(get_distances(cfg))
+    tester = Tester(cfg)
+    print(tester.test_assignments(reachable_nodes(run_test(cfg, {'X': 0})[0])))
+    print(tester.test_decisions(reachable_nodes(run_test(cfg, {'X': 0})[0])))
+    print(tester.test_distance(reachable_nodes(run_test(cfg, {'X': 0})[0]), k=3))
 
 if __name__ == "__main__":
     main()
