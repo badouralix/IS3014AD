@@ -75,6 +75,7 @@ class CIf(Com):
         else:
             return cfalse.exec(state)
 
+
 class CWhile(Com):
     def __init__(self, bexp, com, label=None):
         super().__init__(typename="CWHILE", label=label)
@@ -91,12 +92,14 @@ class CWhile(Com):
 
 
 if __name__ == '__main__':
-    from aexp import *
-    from bexp import *
-    from anytree import RenderTree
+    import os, sys
+    sys.path.insert(1, os.path.join(sys.path[0], '..'))
+    from astree.aexp import *
+    from astree.bexp import *
+    from utils.printer import print_ast
     ast = CSequence(CSkip(), CSequence(CAssign(AVariable('X'), ABinOp('+', AConstant(1), AConstant(1))), CSkip()))
     ast = CIf(BBinOp('==', AVariable('X'), AConstant(0)), CAssign(AVariable('Y'), AConstant(1)))
     ast = CWhile(BBinOp('!=', AVariable('X'), AConstant(5)), CAssign(AVariable('X'), ABinOp('+', AVariable('X'), AConstant(1))))
     ast = CSequence(CAssign(AVariable('X'), AConstant('1')), CAssign(AVariable('Y'), AConstant('2')), CAssign(AVariable('Z'), AConstant('3')), label=0)
-    print(RenderTree(ast))
+    print_ast(ast)
     print(ast.exec({'X': 0}))
