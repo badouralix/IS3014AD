@@ -24,9 +24,15 @@ class Com(AnyNode):
             kwargs   -- optional keywords
         """
         super().__init__()
-        self.typename = typename
-        if label:
+        self._typename = typename
+        if label is not None:
             self.label = label
+
+    def __repr__(self):
+        try:
+            return "{}(label={})".format(self.__class__.__name__, self.label)
+        except:
+            return "{}()".format(self.__class__.__name__)
 
 
 class CSkip(Com):
@@ -101,6 +107,6 @@ if __name__ == '__main__':
     ast = CSequence(CSkip(), CSequence(CAssign(AVariable('X'), ABinOp('+', AConstant(1), AConstant(1)), label=2), CSkip(), label=1), label=0)
     ast = CIf(BBinOp('==', AVariable('X'), AConstant(0)), CAssign(AVariable('Y'), AConstant(1)), label=0)
     ast = CWhile(BBinOp('!=', AVariable('X'), AConstant(5)), CAssign(AVariable('X'), ABinOp('+', AVariable('X'), AConstant(1)), label=1), label=0)
-    ast = CSequence(CAssign(AVariable('X'), AConstant('1'), label=1), CAssign(AVariable('Y'), AConstant('2'), label=2), CAssign(AVariable('Z'), AConstant('3'), label=3), label=0)
+    ast = CSequence(CAssign(AVariable('X'), AConstant(1), label=1), CAssign(AVariable('Y'), AConstant(2), label=2), CAssign(AVariable('Z'), AConstant(3), label=3), label=0)
     print_ast(ast)
     print(ast.exec({'X': 0}))

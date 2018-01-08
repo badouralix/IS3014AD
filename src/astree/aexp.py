@@ -27,7 +27,8 @@ class AExp(AnyNode):
             kwargs -- optional keywords
         """
         super().__init__()
-        self.typename = typename
+        self._typename = typename
+
 
 
 class AConstant(AExp):
