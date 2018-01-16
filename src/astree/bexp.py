@@ -16,7 +16,7 @@ from anytree import AnyNode
 
 class BExp(AnyNode):
     """
-    Arithmetic expressions.
+    Boolean expressions.
     """
 
     def __init__(self, typename="BEXP", **kwargs):
@@ -61,13 +61,13 @@ class BUnOp(BExp):
     Unary operators.
     """
 
-    def __init__(self, op, aexp):
+    def __init__(self, op, bexp):
         super().__init__(typename="BUNOP")
         if op in ['!']:
             self.op = op
         else:
             raise TypeError("Unknown unary boolean operator {}".format(self.op))
-        aexp.parent = self
+        bexp.parent = self
 
     def eval(self, state):
         value = self.children[0].eval(state)
