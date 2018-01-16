@@ -6,7 +6,6 @@ import networkx as nx
 
 from astree.com import *
 
-
 def add_start_node(cfg):
     cfg.add_node("START")
     return cfg
@@ -95,6 +94,9 @@ def recursive_ast2cfg(previous_edges, ast, cfg):
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
     from utils.printer import print_ast, print_cfg
+    from astree.aexp import *
+    from astree.bexp import *
+
 
     true_ast = CAssign(AVariable('X'), AConstant(2), label=3)
     false_ast = CAssign(AVariable('Y'), AConstant(4), label=4)
