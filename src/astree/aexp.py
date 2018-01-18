@@ -86,7 +86,7 @@ class ABinOp(AExp):
         '+': '__add__',
         '-': '__sub__',
         '*': '__mul__',
-        '//': '__floordiv__',
+        '/': '__floordiv__',
         '%': '__mod__',
         '**': '__pow__',
     }
