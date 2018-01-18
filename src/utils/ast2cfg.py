@@ -4,13 +4,16 @@
 import copy
 import networkx as nx
 
-# Add parentdir to import path
-import os, sys
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+from astree.com import *
 
-from astree.aexp import *
-from astree.bexp import BConstant
-from astree.com import CAssign, CSkip
+def add_start_node(cfg):
+    cfg.add_node("START")
+    return cfg
+
+
+def add_end_node(cfg):
+    cfg.add_node("END")
+    return cfg
 
 
 def ast2cfg(ast):
@@ -19,43 +22,96 @@ def ast2cfg(ast):
 
     add_start_node(cfg)
 
-    cfg, next_nodes = rec_ast2cfg(ast, cfg, {"START": (BConstant(True), CSkip())})
+    cfg, dangling_edges = recursive_ast2cfg({("START", BConstant(True), CSkip())}, ast, cfg)
 
     add_end_node(cfg)
-    for node, data in next_nodes.items():
-        bexp, com = data
-        cfg.add_edge(node, "END", bexp=bexp, com=com)
+
+    for previous_node, bexp, com in dangling_edges:
+        cfg.add_edge(previous_node, "END", bexp=bexp, com=com)
 
     return cfg
 
 
-def add_start_node(cfg):
-    cfg.add_node("START")
-    return cfg
+def recursive_ast2cfg(previous_edges, ast, cfg):
+    """
+        This function does the actual conversion from ast to cfg.
+        It takes some half-edges (one node + edge properties) an ast, and a cfg.
+        It returns an updated cfg and some other half-edges.
+        Event if each type of AST should be treated differently, there are somme common points :
+        CAssign, CIf and CWhile all create a node with the label of the assign/if/while instruction.
+        This part is factorized for lisibility.
+    """
 
-
-def rec_ast2cfg(ast, cfg, previous_nodes):
-    next_nodes = {}
+    if not isinstance(ast, CSequence):
+        # If ast is assign/if/while, we can create a top-level node and link dangling edges to it
+        cfg.add_node(ast.label)
+        for previous_node, bexp, com in previous_edges:
+            cfg.add_edge(previous_node, ast.label, bexp=bexp, com=com)
 
     if isinstance(ast, CAssign):
-        cfg.add_node(ast.label)
-        for node, data in previous_nodes.items():
-            bexp, com = data
-            cfg.add_edge(node, ast.label, bexp=bexp, com=com)
-        next_nodes = {ast.label: (BConstant(True), CAssign(*ast.children))}
-
-    return cfg, next_nodes
-
-
-def add_end_node(cfg):
-    cfg.add_node("END")
-    return cfg
+        # Assign: simply return an half-edge with the assignment AST as com.
+            return cfg, {(ast.label, BConstant(True), ast)}
+    elif isinstance(ast, CIf):
+        # If: convert "if condition true" ast, link top-level node to it with condition true,
+        # then convert "if condition false" ast, link top-level node to it with ! (not) condition.
+        bexp, ctrue, cfalse = ast.children
+        cfg, true_branch_dangling_edges = recursive_ast2cfg(
+            {
+                (ast.label, bexp, CSkip())
+            }, ctrue, cfg)
+        cfg, false_branch_dangling_edges = recursive_ast2cfg(
+            {
+                (ast.label, BUnOp("!", bexp), CSkip())
+            }, cfalse, cfg)
+        # Gather all dangling edges leaving those newly converted cfg parts and return them
+        true_branch_dangling_edges.update(false_branch_dangling_edges)
+        return cfg, true_branch_dangling_edges
+    elif isinstance(ast, CSequence):
+        # Sequence is different : no top-level node.
+        # We sequentially convert all sub-ast of sequence ast, passing dangling edges from one
+        # to the next one
+        # Copy previous_edges to avoid modifying it
+        edges_to_transfer = copy.deepcopy(previous_edges)
+        for sub_ast in list(ast.children):
+            cfg, edges_to_transfer = recursive_ast2cfg(edges_to_transfer, sub_ast, cfg)
+        # Return dangling edges at the end of the conversion
+        return cfg, edges_to_transfer
+    elif isinstance(ast, CWhile):
+        # We convert the "condition true" sub ast
+        bexp, ctrue = ast.children
+        cfg, true_branch_dangling_edges = recursive_ast2cfg(
+            {
+                (ast.label, bexp, CSkip())
+            }, ctrue, cfg
+        )
+        # And we link output dangling edges to the top level-node to actually create the loop
+        for previous_node, bexp, com in true_branch_dangling_edges:
+            cfg.add_edge(previous_node, ast.label, bexp=bexp, com=com)
+        # Return an half-edge that will be followed if while condition does not apply
+        return cfg, {(ast.label, BUnOp("!", ctrue), CSkip())}
 
 
 if __name__ == "__main__":
-    from printer import print_ast, print_cfg
-    ast = CAssign(AVariable('X'), AConstant(1), label=1)
-    print_ast(ast)
-    cfg = ast2cfg(ast)
+    import matplotlib.pyplot as plt
+    from utils.printer import print_ast, print_cfg
+    from astree.aexp import *
+    from astree.bexp import *
+
+
+    true_ast = CAssign(AVariable('X'), AConstant(2), label=3)
+    false_ast = CAssign(AVariable('Y'), AConstant(4), label=4)
+    if_ast = CIf(BConstant(True), true_ast, false_ast, label=2)
+
+    assign_ast = CAssign(AVariable('Z'), AVariable('X'), label=5)
+    assign_ast_bis = CAssign(AVariable('Y'), AConstant('3'), label=6)
+    seq_ast = CSequence(if_ast, assign_ast, assign_ast_bis)
+
+    while_ast=CWhile(BConstant(True), seq_ast, label=1)
+
+    cfg = ast2cfg(while_ast)
     print_cfg(cfg)
-    print_ast(ast)
+    pos = nx.spring_layout(cfg)
+    nx.draw_networkx(cfg, pos=pos)
+    nx.draw_networkx_edge_labels(cfg, pos=pos, font_size=4)
+    limits = plt.axis("off")
+    plt.show()
