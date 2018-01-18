@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 
 from cfgraph.runners import run_test, reachable_nodes
 from cfgraph.tester import Tester
+from syntax.parser import parser
 from utils.ast2cfg import ast2cfg
-from utils.parser import parser
 from utils.printer import print_ast, print_cfg
 
 
