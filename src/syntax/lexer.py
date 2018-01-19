@@ -5,10 +5,17 @@ import ply.lex as lex
 
 
 # List of token names. This is always required
+reserved = {
+    'if' : 'IF',
+    'else' : 'ELSE',
+    'while' : 'WHILE',
+    'print' : 'PRINT'
+}
+
 va = (
     'BOOL',
-    'VALUE',
-    'VARIABLE',
+    'NUMBER',
+    'ID',
 )
 aop = (
     'POWER',
@@ -25,12 +32,13 @@ bop = (
     'GT',
     'GE',
 )
-tokens = va + aop + bop
-literals = [ '+', '-', '*', '/', '!', '(', ')' ]
+stokens = (
+    'ASSIGN',
+)
+tokens = va + aop + bop + stokens + tuple(reserved.values())
+literals = [ '+', '-', '*', '/', '!', '(', ')', ';', '{', '}' ]
 
 # Regular expression rules for simple tokens
-t_VARIABLE  = r'\w+'
-
 t_POWER = r'\*\*'
 
 t_AND   = r'&&'
@@ -57,15 +65,36 @@ def t_rparen(t):
     t.type = ')'
     return t
 
+def t_lbrace(t):
+    r'\{'
+    t.type = '{'
+    return t
+
+def t_rbrace(t):
+    r'\}'
+    t.type = '}'
+    return t
+
 def t_BOOL(t):
     r'(true|false)'
     t.value = True if t.value == "true" else False
     return t
 
-def t_VALUE(t):
+def t_NUMBER(t):
     r'\d+'
     t.value = int(t.value)
     return t
+
+def t_ASSIGN(t):
+    r':='
+    t.type = 'ASSIGN'
+    return t
+
+def t_ID(t):
+    r'[a-zA-Z_][a-zA-Z_0-9]*'
+    t.type = reserved.get(t.value, 'ID')    # Check for reserved words
+    return t
+
 
 # Define a rule so we can track line numbers
 def t_newline(t):
@@ -88,7 +117,7 @@ if __name__ == "__main__":
     # Test it out
     source_code = """0 + (1 + 2) ** 3 * 4 / 4
     // comment
-    true && false"""
+    if (x == 1) { y:=0 }"""
     lexer.input(source_code)
 
     # Tokenize

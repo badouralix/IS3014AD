@@ -37,10 +37,10 @@ def p_afactor(p):
     elif len(p) == 4:
         p[0] = p[2]
 
-def p_afactor_value(p):
-    'afactor : VALUE'
+def p_afactor_number(p):
+    'afactor : NUMBER'
     p[0] = AConstant(p[1])
 
 def p_afactor_variable(p):
-    'afactor : VARIABLE'
+    'afactor : ID'
     p[0] = AVariable(p[1])

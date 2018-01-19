@@ -8,6 +8,7 @@ Sources
 - https://arxiv.org/pdf/1603.08949.pdf
 - https://ruslanspivak.com/lsbasi-part7/
 - https://tomassetti.me/parsing-in-python/#parseTree
+- http://fsl.cs.illinois.edu/images/0/0d/CS522-Spring-2011-PL-book-imp.pdf
 
 """
 
