@@ -3,37 +3,36 @@
 
 import ply.lex as lex
 
-# List of token names.   This is always required
-tokens = (
-    'NUMBER',
+
+# List of token names. This is always required
+va = (
+    'VALUE',
     'VARIABLE',
-
-    'PLUS',
-    'MINUS',
-    'POWER',
-    'TIMES',
-    'DIVIDE',
-    'MODULO',
-
-    'LPAREN',
-    'RPAREN',
 )
+ops = (
+    'POWER',
+)
+tokens = va + ops
+literals = [ '+', '-', '*', '/', '(', ')' ]
 
 # Regular expression rules for simple tokens
 t_VARIABLE  = r'\w+'
-t_PLUS      = r'\+'
-t_MINUS     = r'-'
 t_POWER     = r'\*\*'
-t_TIMES     = r'\*'
-t_DIVIDE    = r'/'
-t_MODULO    = r'%'
-t_LPAREN    = r'\('
-t_RPAREN    = r'\)'
 
 # A regular expression rule with some action code
-def t_NUMBER(t):
+def t_VALUE(t):
     r'\d+'
     t.value = int(t.value)
+    return t
+
+def t_lparen(t):
+    r'\('
+    t.type = '('
+    return t
+
+def t_rparen(t):
+    r'\)'
+    t.type = ')'
     return t
 
 # Define a rule so we can track line numbers

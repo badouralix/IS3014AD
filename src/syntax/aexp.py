@@ -9,14 +9,14 @@ from astree.aexp import *
 
 
 def p_aexp_binop(p):
-    '''
-    aexp   : aexp PLUS aterm
-           | aexp MINUS aterm
-    aterm  : aterm TIMES afactor
-           | aterm DIVIDE afactor
-           | aterm MODULO afactor
+    """
+    aexp   : aexp '+' aterm
+           | aexp '-' aterm
+    aterm  : aterm '*' afactor
+           | aterm '/' afactor
+           | aterm '%' afactor
            | aterm POWER afactor
-    '''
+    """
     p[0] = ABinOp(p[2], p[1], p[3])
 
 def p_aexp_aterm(p):
@@ -28,17 +28,17 @@ def p_aterm_afactor(p):
     p[0] = p[1]
 
 def p_afactor(p):
-    '''
-    afactor : MINUS afactor
-            | LPAREN aexp RPAREN
-    '''
+    """
+    afactor : '-' afactor
+            | '(' aexp ')'
+    """
     if len(p) == 3:
         p[0] = AUnOp(p[1], p[2])
     elif len(p) == 4:
         p[0] = p[2]
 
 def p_afactor_number(p):
-    'afactor : NUMBER'
+    'afactor : VALUE'
     p[0] = AConstant(p[1])
 
 def p_afactor_variable(p):
