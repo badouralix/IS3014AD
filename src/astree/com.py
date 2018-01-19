@@ -99,6 +99,17 @@ class CWhile(Com):
             return state
 
 
+class CPrint(Com):
+    def __init__(self, aexp, label=None):
+        super().__init__(typename="CPRINT", label=label)
+        aexp.parent = self
+
+    def exec(self, state):
+        aexp = self.children[0]
+        print(aexp.eval(state))
+        return state
+
+
 if __name__ == '__main__':
     import os, sys
     sys.path.insert(1, os.path.join(sys.path[0], '..'))
@@ -109,5 +120,6 @@ if __name__ == '__main__':
     ast = CIf(BBinOp('==', AVariable('X'), AConstant(0)), CAssign(AVariable('Y'), AConstant(1)), label=0)
     ast = CWhile(BBinOp('!=', AVariable('X'), AConstant(5)), CAssign(AVariable('X'), ABinOp('+', AVariable('X'), AConstant(1)), label=1), label=0)
     ast = CSequence(CAssign(AVariable('X'), AConstant(1), label=1), CAssign(AVariable('Y'), AConstant(2), label=2), CAssign(AVariable('Z'), AConstant(3), label=3), label=0)
+    ast = CPrint(AVariable('X'))
     print_ast(ast)
     print(ast.exec({'X': 0}))

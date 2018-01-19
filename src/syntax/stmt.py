@@ -45,3 +45,9 @@ def p_stmt_cwhile(p):
     stmt : WHILE '(' bexp ')' '{' stmt '}'
     """
     p[0] = CWhile(p[3], p[6])
+
+def p_stmt_cprint(p):
+    """
+    stmt : PRINT '(' aexp ')' ';'
+    """
+    p[0] = CPrint(p[3])
