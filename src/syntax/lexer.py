@@ -6,25 +6,47 @@ import ply.lex as lex
 
 # List of token names. This is always required
 va = (
+    'BOOL',
     'VALUE',
     'VARIABLE',
 )
-ops = (
+aop = (
     'POWER',
 )
-tokens = va + ops
-literals = [ '+', '-', '*', '/', '(', ')' ]
+bop = (
+    'AND',
+    'OR',
+    'XOR',
+
+    'EQ',
+    'NE',
+    'LT',
+    'LE',
+    'GT',
+    'GE',
+)
+tokens = va + aop + bop
+literals = [ '+', '-', '*', '/', '!', '(', ')' ]
 
 # Regular expression rules for simple tokens
 t_VARIABLE  = r'\w+'
-t_POWER     = r'\*\*'
+
+t_POWER = r'\*\*'
+
+t_AND   = r'&&'
+t_OR    = r'\|\|'
+t_XOR   = r'\^'
+
+t_EQ    = r'=='
+t_NE    = r'!='
+t_LT    = r'<'
+t_LE    = r'<='
+t_GT    = r'>'
+t_GE    = r'>='
+
+t_ignore_COMMENT = r'//.*'
 
 # A regular expression rule with some action code
-def t_VALUE(t):
-    r'\d+'
-    t.value = int(t.value)
-    return t
-
 def t_lparen(t):
     r'\('
     t.type = '('
@@ -33,6 +55,16 @@ def t_lparen(t):
 def t_rparen(t):
     r'\)'
     t.type = ')'
+    return t
+
+def t_BOOL(t):
+    r'(true|false)'
+    t.value = True if t.value == "true" else False
+    return t
+
+def t_VALUE(t):
+    r'\d+'
+    t.value = int(t.value)
     return t
 
 # Define a rule so we can track line numbers
@@ -54,7 +86,9 @@ lexer = lex.lex()
 
 if __name__ == "__main__":
     # Test it out
-    source_code = '0 + (1 + 2) ** 3 * 4 / 4'
+    source_code = """0 + (1 + 2) ** 3 * 4 / 4
+    // comment
+    true && false"""
     lexer.input(source_code)
 
     # Tokenize
