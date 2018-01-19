@@ -21,10 +21,13 @@ def main():
     ast = parser.parse(source_code)
     print_ast(ast)
 
-    # cfg = ast2cfg(ast)
-    # print_cfg(cfg)
+    cfg = ast2cfg(ast)
+    print_cfg(cfg)
 
-    # nx.draw(cfg, with_labels=True, font_weight='bold')
+    # pos = nx.spring_layout(cfg)
+    # nx.draw_networkx(cfg, pos=pos)
+    # nx.draw_networkx_edge_labels(cfg, pos=pos, font_size=4)
+    # limits = plt.axis("off")
     # plt.show()
 
     # print(run_test(cfg, {'X': -1}))

@@ -4,6 +4,7 @@
 import copy
 import networkx as nx
 
+from astree.bexp import *
 from astree.com import *
 
 def add_start_node(cfg):
@@ -48,7 +49,7 @@ def recursive_ast2cfg(previous_edges, ast, cfg):
         for previous_node, bexp, com in previous_edges:
             cfg.add_edge(previous_node, ast.label, bexp=bexp, com=com)
 
-    if isinstance(ast, CAssign):
+    if isinstance(ast, CAssign) or isinstance(ast, CPrint):
         # Assign: simply return an half-edge with the assignment AST as com.
             return cfg, {(ast.label, BConstant(True), ast)}
     elif isinstance(ast, CIf):
