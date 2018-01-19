@@ -27,10 +27,15 @@ def p_aterm_afactor(p):
     'aterm : afactor'
     p[0] = p[1]
 
-def p_afactor_anum(p):
-    'afactor : NUMBER'
-    p[0] = AConstant(p[1])
-
-def p_afactor_aexpr(p):
-    'afactor : LPAREN aexp RPAREN'
-    p[0] = p[2]
+def p_afactor(p):
+    '''
+    afactor : NUMBER
+            | MINUS afactor
+            | LPAREN aexp RPAREN
+    '''
+    if len(p) == 2:
+        p[0] = AConstant(p[1])
+    elif len(p) == 3:
+        p[0] = AUnOp(p[1], p[2])
+    elif len(p) == 4:
+        p[0] = p[2]
