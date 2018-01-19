@@ -23,4 +23,4 @@ parser = yacc.yacc(debug=False, write_tables=False)
 
 if __name__ == "__main__":
     from utils.printer import print_ast
-    print_ast(parser.parse('0 + (1 + 2) ** 3 * 4 / 5'))
+    print_ast(parser.parse('-x0 * yx0 + -(1 +- 2) ** -3 * 4 / 5'))

@@ -5,26 +5,30 @@ import ply.lex as lex
 
 # List of token names.   This is always required
 tokens = (
-   'NUMBER',
-   'PLUS',
-   'MINUS',
-   'POWER',
-   'TIMES',
-   'DIVIDE',
-   'MODULO',
-   'LPAREN',
-   'RPAREN',
+    'NUMBER',
+    'VARIABLE',
+
+    'PLUS',
+    'MINUS',
+    'POWER',
+    'TIMES',
+    'DIVIDE',
+    'MODULO',
+
+    'LPAREN',
+    'RPAREN',
 )
 
 # Regular expression rules for simple tokens
-t_PLUS    = r'\+'
-t_MINUS   = r'-'
-t_POWER   = r'\*\*'
-t_TIMES   = r'\*'
-t_DIVIDE  = r'/'
-t_MODULO  = r'%'
-t_LPAREN  = r'\('
-t_RPAREN  = r'\)'
+t_VARIABLE  = r'\w+'
+t_PLUS      = r'\+'
+t_MINUS     = r'-'
+t_POWER     = r'\*\*'
+t_TIMES     = r'\*'
+t_DIVIDE    = r'/'
+t_MODULO    = r'%'
+t_LPAREN    = r'\('
+t_RPAREN    = r'\)'
 
 # A regular expression rule with some action code
 def t_NUMBER(t):

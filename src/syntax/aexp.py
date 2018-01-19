@@ -29,13 +29,18 @@ def p_aterm_afactor(p):
 
 def p_afactor(p):
     '''
-    afactor : NUMBER
-            | MINUS afactor
+    afactor : MINUS afactor
             | LPAREN aexp RPAREN
     '''
-    if len(p) == 2:
-        p[0] = AConstant(p[1])
-    elif len(p) == 3:
+    if len(p) == 3:
         p[0] = AUnOp(p[1], p[2])
     elif len(p) == 4:
         p[0] = p[2]
+
+def p_afactor_number(p):
+    'afactor : NUMBER'
+    p[0] = AConstant(p[1])
+
+def p_afactor_variable(p):
+    'afactor : VARIABLE'
+    p[0] = AVariable(p[1])
