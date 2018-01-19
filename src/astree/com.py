@@ -56,6 +56,11 @@ class CAssign(Com):
         state[var.name] = value             # should var be a string or an aexp?
         return state
 
+    def eval(self, state):
+        var, _ = self.children
+        self.exec(state)
+        return state[var.name]
+
 
 class CSequence(Com):
     def __init__(self, *args, label=None):
