@@ -36,7 +36,7 @@ stokens = (
     'ASSIGN',
 )
 tokens = va + aop + bop + stokens + tuple(reserved.values())
-literals = [ '+', '-', '*', '/', '!', '(', ')', ';', '{', '}' ]
+literals = [ '+', '-', '*', '/', '!', '(', ')', ';', '{', '}', ':' ]
 
 # Regular expression rules for simple tokens
 t_POWER = r'\*\*'

@@ -17,9 +17,9 @@ from astree.com import *
 
 def p_stmt_cassign(p):
     """
-    stmt : ID ASSIGN aexp ';'
+    stmt : NUMBER ':' ID ASSIGN aexp ';'
     """
-    p[0] = CAssign(AVariable(p[1]), p[3])
+    p[0] = CAssign(AVariable(p[3]), p[5], label=p[1])
 
 def p_stmt_csequence(p):
     """
@@ -32,22 +32,22 @@ def p_stmt_csequence(p):
 
 def p_stmt_cif(p):
     """
-    stmt : IF '(' bexp ')' '{' stmt '}'
-         | IF '(' bexp ')' '{' stmt '}' ELSE '{' stmt '}'
+    stmt : NUMBER ':' IF '(' bexp ')' '{' stmt '}'
+         | NUMBER ':' IF '(' bexp ')' '{' stmt '}' ELSE '{' stmt '}'
     """
-    if len(p) == 8:
-        p[0] = CIf(p[3], p[6], CSkip())
-    elif len(p) == 12:
-        p[0] = CIf(p[3], p[6], p[10])
+    if len(p) == 10:
+        p[0] = CIf(p[5], p[8], CSkip(), label=p[1])
+    elif len(p) == 14:
+        p[0] = CIf(p[5], p[8], p[12], label=p[1])
 
 def p_stmt_cwhile(p):
     """
-    stmt : WHILE '(' bexp ')' '{' stmt '}'
+    stmt : NUMBER ':' WHILE '(' bexp ')' '{' stmt '}'
     """
-    p[0] = CWhile(p[3], p[6])
+    p[0] = CWhile(p[5], p[8], label=p[1])
 
 def p_stmt_cprint(p):
     """
-    stmt : PRINT '(' aexp ')' ';'
+    stmt : NUMBER ':' PRINT '(' aexp ')' ';'
     """
-    p[0] = CPrint(p[3])
+    p[0] = CPrint(p[5], label=p[1])

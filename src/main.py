@@ -12,7 +12,11 @@ from utils.printer import print_ast, print_cfg
 
 
 def main():
-    source_code = '0 + (1 + 2) ** 3 * 4 / 5'
+    source_filename = "input/example.imp"
+    source_file = open(source_filename)
+    source_code = source_file.read()
+
+    # print(source_code)
 
     ast = parser.parse(source_code)
     print_ast(ast)
