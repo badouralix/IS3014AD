@@ -123,7 +123,6 @@ class CPrint(Com):
 
     def exec(self, state):
         aexp = self.children[0]
-        print(aexp.eval(state))
         return state
 
     @property
