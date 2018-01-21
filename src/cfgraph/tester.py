@@ -67,24 +67,26 @@ class Tester():
 
     def test_definitions(self, paths):
         """
-        Each variable definition must be followed by an usage of this var, with no def
+        Each variable definition must be followed by an usage (ref) of this var, with no def
         in between.
         :param run_result:
-        :return:
+        :return: dict containing var:{unused def} entries
         """
+
+        # Dict containing var:{all nodes defining var} entries
         all_defs = copy.deepcopy(self.all_defs)
 
         for path in paths:
             for var in all_defs.keys():
+                # Get nodes defining var in path
                 path_defs = [def_node for def_node in all_defs[var] if def_node in path]
                 for def_node in path_defs:
                     def_node_pos = path.index(def_node)
-                    for following_node in path[def_node_pos+1:]:
-                        if var in get_def(self.cfg, following_node):
-                            break
-                        if var in get_ref(self.cfg, following_node):
-                            all_defs[var].remove(def_node)
-                            break
+                    if self.next_ref_pos(path, var, def_node_pos+1) > -1:
+                        all_defs[var].remove(def_node)
+
+        # Clean result
+        all_defs = {var:def_nodes for var, def_nodes in all_defs.items() if len(def_nodes) != 0}
 
         return all_defs
 
@@ -97,12 +99,11 @@ class Tester():
                 path_defs = [def_node for def_node in usages[var].keys() if def_node in path]
                 for def_node in path_defs:
                     def_node_pos = path.index(def_node)
-                    for following_node in path[def_node_pos+1:]:
-                        if var in get_def(self.cfg, following_node):
-                            break
-                        if var in get_ref(self.cfg, following_node):
-                            usages[var][def_node].discard(following_node)
-                            break
+                    ref_node_pos = self.next_ref_pos(path, var, def_node_pos+1)
+                    if ref_node_pos > -1:
+                        usages[var][def_node].discard(path[ref_node_pos])
+
+        # Clean result
         for var in usages.keys():
             usages[var] = {def_node: ref_nodes for def_node, ref_nodes in usages[var].items() if len(ref_nodes) != 0}
         usages = {var:usages for var, usages in usages.items() if len(usages) != 0}
@@ -128,4 +129,12 @@ class Tester():
                 return index
             else:
                 test_path = path[index+1:]
+        return -1
+
+    def next_ref_pos(self, path, var, start_pos, allow_def=False):
+        for idx, node in enumerate(path[start_pos:]):
+            if not allow_def and var in get_def(self.cfg, node):
+                return -1
+            if var in get_ref(self.cfg, node):
+                return idx+start_pos
         return -1
