@@ -15,7 +15,8 @@ class Tester():
         self.distances = get_distances(cfg)
         self.loop = get_loop(cfg)
         self.all_defs = get_all_def(cfg)
-        self.usages = get_all_direct_usages(cfg)
+        self.usages = get_all_usages(cfg)
+        self.du_paths = get_all_du_paths(cfg)
 
     def test_assignments(self, paths):
         assignments = self.assignments.copy()
@@ -87,8 +88,8 @@ class Tester():
 
         return all_defs
 
-    def test_utilisations(self, paths):
-
+    def test_usages(self, paths):
+        # TODO: Probably does'nt work on loops (or does it ?)
         usages = copy.deepcopy(self.usages)
 
         for path in paths:
@@ -107,3 +108,24 @@ class Tester():
         usages = {var:usages for var, usages in usages.items() if len(usages) != 0}
 
         return usages
+
+    def test_du_paths(self, paths):
+        du_paths = copy.deepcopy(self.du_paths)
+        for path in paths:
+            local_du_paths = copy.deepcopy(du_paths)
+            for du_path in local_du_paths:
+                if Tester.path_in_path(du_path, path) > -1:
+                    du_paths.remove(du_path)
+        return du_paths
+
+
+    @staticmethod
+    def path_in_path(subpath, path):
+        test_path = path[:]
+        while subpath[0] in test_path:
+            index = test_path.index(subpath[0])
+            if subpath == test_path[index:index+len(subpath)]:
+                return index
+            else:
+                test_path = path[index+1:]
+        return -1

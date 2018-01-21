@@ -44,10 +44,9 @@ def main():
     # print("= Testing definitions =")
     # print(tester.test_definitions(run_test(cfg, {'x': 0})[0]))
 
-    test_set= [{'x': 0}]
-    # test_set= [{'x': 0},
-    #            {'x': -1},
-    #            {'x': +1}]
+    test_set= [{'x': 0},
+               {'x': -1},
+               {'x': +1}]
 
     print("== Running tests ==")
     tester = Tester(cfg)
@@ -60,8 +59,9 @@ def main():
     print("= Testing definitions =")
     print(tester.test_definitions(run_test_set(cfg, test_set)))
     print("= Testing usages =")
-    print(tester.test_utilisations(run_test_set(cfg, test_set)))
-    print(get_all_direct_usages(cfg))
+    print(tester.test_usages(run_test_set(cfg, test_set)))
+    print("= Testing DU paths =")
+    print(tester.test_du_paths(run_test_set(cfg, test_set)))
 
 
 if __name__ == "__main__":

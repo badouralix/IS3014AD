@@ -127,13 +127,13 @@ def get_all_ref(cfg):
     return result
 
 
-def get_all_direct_usages(cfg):
+def get_all_usages(cfg):
     result = defaultdict(dict)
     for var, def_nodes in get_all_def(cfg).items():
         for def_node in def_nodes:
             paths = list(nx.all_simple_paths(cfg, def_node, "END"))
             direct_usages = set()
-            #Remove paths containing a def before a ref
+            # Remove paths containing a def before a ref
             for path in paths:
                 for node in path[1:]:
                     if var in get_def(cfg, node):
@@ -142,5 +142,23 @@ def get_all_direct_usages(cfg):
                         direct_usages.add(node)
                         break
             result[var][def_node] = direct_usages.copy()
+
+    return result
+
+def get_all_du_paths(cfg):
+    result = list()
+    for var, def_nodes in get_all_def(cfg).items():
+        for def_node in def_nodes:
+            paths = list(nx.all_simple_paths(cfg, def_node, "END"))
+            direct_usages = list()
+            # Remove paths containing a def before a ref
+            for path in paths:
+                for idx, node in enumerate(path[1:]):
+                    if var in get_def(cfg, node):
+                        break
+                    if var in get_ref(cfg, node):
+                        if path[:idx+2] not in result:
+                            result.append(path[:idx+2])
+                        break
 
     return result
