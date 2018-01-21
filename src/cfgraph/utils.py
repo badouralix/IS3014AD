@@ -2,9 +2,12 @@
 # -*- coding: utf-8 -*-
 
 from queue import Queue
-from astree.bexp import BConstant
+from astree.bexp import BConstant, BExp
 from astree.com import CAssign
-
+from collections import defaultdict
+import networkx as nx
+from itertools import chain
+import copy
 
 def get_assignments(cfg):
     """
@@ -87,5 +90,57 @@ def get_loop(cfg):
                 result.add(node)
         except:
             pass
+
+    return result
+
+def get_def(cfg, node):
+    result = set()
+    leaving_edges = cfg.out_edges(node, data=True)
+    for edge in leaving_edges:
+        if isinstance(edge[2]["com"], CAssign):
+            result = result.union(edge[2]["com"].assigned_var)
+
+    return result
+
+def get_ref(cfg, node):
+    result = set()
+    leaving_edges = cfg.out_edges(node, data=True)
+    for edge in leaving_edges:
+        result = result.union(edge[2]["bexp"].vars)
+        result = result.union(edge[2]["com"].vars)
+    return result
+
+
+def get_all_def(cfg):
+    result = defaultdict(set)
+    for node in cfg.nodes:
+        for var in get_def(cfg, node):
+            result[var].add(node)
+    return result
+
+
+def get_all_ref(cfg):
+    result = defaultdict(set)
+    for node in cfg.nodes:
+        for var in get_ref(cfg, node):
+            result[var].add(node)
+    return result
+
+
+def get_all_direct_usages(cfg):
+    result = defaultdict(dict)
+    for var, def_nodes in get_all_def(cfg).items():
+        for def_node in def_nodes:
+            paths = list(nx.all_simple_paths(cfg, def_node, "END"))
+            direct_usages = set()
+            #Remove paths containing a def before a ref
+            for path in paths:
+                for node in path[1:]:
+                    if var in get_def(cfg, node):
+                        break
+                    if var in get_ref(cfg, node):
+                        direct_usages.add(node)
+                        break
+            result[var][def_node] = direct_usages.copy()
 
     return result

@@ -33,6 +33,14 @@ def run_test(cfg, init_state):
     return path, state
 
 
+def run_test_set(cfg, valuations):
+    paths = []
+    for valuation in valuations:
+        path, end_state = run_test(cfg, valuation)
+        paths.append(path)
+    return paths
+
+
 def reachable_nodes(path):
     """[summary]
 
