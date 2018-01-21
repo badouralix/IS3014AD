@@ -89,7 +89,7 @@ def recursive_ast2cfg(previous_edges, ast, cfg):
         for previous_node, bexp, com in true_branch_dangling_edges:
             cfg.add_edge(previous_node, ast.label, bexp=bexp, com=com)
         # Return an half-edge that will be followed if while condition does not apply
-        return cfg, {(ast.label, BUnOp("!", ctrue), CSkip())}
+        return cfg, {(ast.label, BUnOp("!", ast.children[0]), CSkip())}
 
 
 if __name__ == "__main__":
