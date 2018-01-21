@@ -86,7 +86,7 @@ def get_loop(cfg):
 
     for node, data in cfg.nodes().data():
         try:
-            if data["typename"] == "CWHILE":
+            if data["type"] == "CWHILE":
                 result.add(node)
         except:
             pass
