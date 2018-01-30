@@ -65,12 +65,13 @@ def recursive_ast2cfg(previous_edges, ast, cfg):
             {
                 (ast.label, bexp, CSkip())
             }, ctrue, cfg)
-        cfg, false_branch_dangling_edges = recursive_ast2cfg(
-            {
-                (ast.label, BUnOp("!", bexp), CSkip())
-            }, cfalse, cfg)
-        # Gather all dangling edges leaving those newly converted cfg parts and return them
-        true_branch_dangling_edges.update(false_branch_dangling_edges)
+        if not isinstance(cfalse, CSkip):
+            cfg, false_branch_dangling_edges = recursive_ast2cfg(
+                {
+                    (ast.label, BUnOp("!", bexp), CSkip())
+                }, cfalse, cfg)
+            # Gather all dangling edges leaving those newly converted cfg parts and return them
+            true_branch_dangling_edges.update(false_branch_dangling_edges)
         return cfg, true_branch_dangling_edges
     elif isinstance(ast, CSequence):
         # Sequence is different : no top-level node.
