@@ -47,6 +47,8 @@ def recursive_ast2cfg(previous_edges, ast, cfg):
         # If ast is assign/if/while, we can create a top-level node and link dangling edges to it
         if isinstance(ast, CWhile):
             cfg.add_node(ast.label, type="CWHILE")
+        elif isinstance(ast, CIf):
+            cfg.add_node(ast.label, type="CIF")
         else:
             cfg.add_node(ast.label)
         for previous_node, bexp, com in previous_edges:
