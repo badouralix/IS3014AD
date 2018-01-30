@@ -30,6 +30,8 @@ def p_aterm_afactor(p):
 def p_afactor(p):
     """
     afactor : '-' afactor
+            | '+' afactor
+            | '.' afactor
             | '(' aexp ')'
     """
     if len(p) == 3:
