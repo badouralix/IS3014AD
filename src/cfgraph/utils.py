@@ -4,7 +4,7 @@
 from queue import Queue
 from astree.bexp import BConstant, BExp
 from astree.com import CAssign
-from collections import defaultdict
+from collections import defaultdict, deque
 import networkx as nx
 from itertools import chain
 import copy
@@ -162,3 +162,32 @@ def get_all_du_paths(cfg):
                         break
 
     return result
+
+def get_k_paths(cfg, k):
+    """
+    Generator for valid paths from START to END, of length less than k.
+    Implement a depth-first search.
+
+    Arguments:
+        cfg -- Control flow graph of the input program
+        k   -- Max length for relevant paths
+    """
+    assert(k >= 0)
+
+    next_nodes = deque() # next_nodes is a stack of tuples (node, distance of node from START)
+    next_nodes.append( ("START", 0) )
+
+    # Holding current valid path
+    current_path = list()
+
+    while next_nodes:
+        node, node_k = next_nodes.pop()
+        current_path = current_path[:node_k] + [node]
+
+        if current_path[-1] == "END":
+            yield current_path
+        elif node_k + 1 <= k:
+            successors = list(cfg.successors(node))
+            successors.reverse()
+            for succ in successors:
+                next_nodes.append( (succ, node_k + 1) )

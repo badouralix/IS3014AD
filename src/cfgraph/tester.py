@@ -37,7 +37,11 @@ class Tester():
         return k_nodes
 
     def test_k_path(self, paths, k):
-        pass
+        missing_k_paths = list()
+        for k_path in get_k_paths(self.cfg, k):
+            if not k_path in paths:
+                missing_k_paths.append(k_path)
+        return missing_k_paths
 
     def test_i_loop(self, paths, i):
         """[summary]
