@@ -75,8 +75,8 @@ def get_distances(cfg):
     while not reached_nodes.empty():
         src = reached_nodes.get(block=False)
         for dest in cfg.successors(src):
-            reached_nodes.put(dest)
             if not dest in result:
+                reached_nodes.put(dest)
                 result[dest] = result[src] + 1
 
     return result
