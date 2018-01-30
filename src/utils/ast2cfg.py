@@ -45,7 +45,10 @@ def recursive_ast2cfg(previous_edges, ast, cfg):
 
     if not isinstance(ast, CSequence):
         # If ast is assign/if/while, we can create a top-level node and link dangling edges to it
-        cfg.add_node(ast.label)
+        if isinstance(ast, CWhile):
+            cfg.add_node(ast.label, type="CWHILE")
+        else:
+            cfg.add_node(ast.label)
         for previous_node, bexp, com in previous_edges:
             cfg.add_edge(previous_node, ast.label, bexp=bexp, com=com)
 
@@ -89,7 +92,7 @@ def recursive_ast2cfg(previous_edges, ast, cfg):
         for previous_node, bexp, com in true_branch_dangling_edges:
             cfg.add_edge(previous_node, ast.label, bexp=bexp, com=com)
         # Return an half-edge that will be followed if while condition does not apply
-        return cfg, {(ast.label, BUnOp("!", ctrue), CSkip())}
+        return cfg, {(ast.label, BUnOp("!", ast.children[0]), CSkip())}
 
 
 if __name__ == "__main__":

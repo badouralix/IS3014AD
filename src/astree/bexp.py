@@ -42,6 +42,9 @@ class BConstant(BExp):
     def eval(self, state):
         return self.value
 
+    @property
+    def vars(self):
+        return {}
 
 class BVariable(BExp):
     """
@@ -55,6 +58,9 @@ class BVariable(BExp):
     def eval(self, state):
         return state[self.name]
 
+    @property
+    def vars(self):
+        return {self.name}
 
 class BUnOp(BExp):
     """
@@ -76,6 +82,9 @@ class BUnOp(BExp):
         else:
             raise TypeError("Unknown unary boolean operator {}".format(self.op))
 
+    @property
+    def vars(self):
+        return self.children[0].vars
 
 class BBinOp(BExp):
     """
@@ -106,6 +115,12 @@ class BBinOp(BExp):
         right = nodes[1].eval(state)
         return getattr(left, self.OPERATORS[self.op])(right)
 
+    @property
+    def vars(self):
+        nodes = self.children
+        left = nodes[0]
+        right = nodes[1]
+        return set.union(left.vars, right.vars)
 
 if __name__ == '__main__':
     from aexp import *
@@ -113,3 +128,4 @@ if __name__ == '__main__':
     ast = BBinOp('&&', BVariable('X'), BUnOp('!', BConstant(False)))
     print(RenderTree(ast))
     print(ast.eval({'X': True}))
+    print(ast.vars)

@@ -43,6 +43,9 @@ class AConstant(AExp):
     def eval(self, state):
         return self.value
 
+    @property
+    def vars(self):
+        return set()
 
 class AVariable(AExp):
     """
@@ -55,6 +58,10 @@ class AVariable(AExp):
 
     def eval(self, state):
         return state[self.name]
+
+    @property
+    def vars(self):
+        return {self.name}
 
 
 class AUnOp(AExp):
@@ -76,6 +83,10 @@ class AUnOp(AExp):
     def eval(self, state):
         value = self.children[0].eval(state)
         return getattr(value, self.OPERATORS[self.op])()
+
+    @property
+    def vars(self):
+        return self.children[0].vars
 
 class ABinOp(AExp):
     """
@@ -103,9 +114,16 @@ class ABinOp(AExp):
         right = nodes[1].eval(state)
         return getattr(left, self.OPERATORS[self.op])(right)
 
+    @property
+    def vars(self):
+        nodes = self.children
+        left = nodes[0]
+        right = nodes[1]
+        return set.union(left.vars, right.vars)
 
 if __name__ == '__main__':
     from anytree import RenderTree
-    ast = ABinOp('//', AVariable('X'), AUnOp('+', AConstant(2)))
+    ast = ABinOp('/', AVariable('X'), AUnOp('+', AConstant(2)))
     print(RenderTree(ast))
     print(ast.eval({'X': 3}))
+    print(ast.vars)

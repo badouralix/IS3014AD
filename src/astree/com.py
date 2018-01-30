@@ -43,6 +43,10 @@ class CSkip(Com):
     def exec(self, state):
         return state
 
+    @property
+    def vars(self):
+        return {}
+
 
 class CAssign(Com):
     def __init__(self, var, exp, label=None):
@@ -60,6 +64,14 @@ class CAssign(Com):
         var, _ = self.children
         self.exec(state)
         return state[var.name]
+
+    @property
+    def assigned_var(self):
+        return self.children[0].vars
+
+    @property
+    def vars(self):
+        return self.children[1].vars
 
 
 class CSequence(Com):
@@ -111,9 +123,11 @@ class CPrint(Com):
 
     def exec(self, state):
         aexp = self.children[0]
-        print(aexp.eval(state))
         return state
 
+    @property
+    def vars(self):
+        return self.children[0].vars
 
 if __name__ == '__main__':
     import os, sys
