@@ -41,6 +41,8 @@ def recursive_ast2cfg(previous_edges, ast, cfg):
         Event if each type of AST should be treated differently, there are somme common points :
         CAssign, CIf and CWhile all create a node with the label of the assign/if/while instruction.
         This part is factorized for lisibility.
+
+        TODO: CSkip needs to be properly handled
     """
 
     if not isinstance(ast, CSequence):
@@ -72,6 +74,8 @@ def recursive_ast2cfg(previous_edges, ast, cfg):
                 }, cfalse, cfg)
             # Gather all dangling edges leaving those newly converted cfg parts and return them
             true_branch_dangling_edges.update(false_branch_dangling_edges)
+        else:
+            true_branch_dangling_edges.update([(ast.label, BUnOp("!", bexp), CSkip())])
         return cfg, true_branch_dangling_edges
     elif isinstance(ast, CSequence):
         # Sequence is different : no top-level node.
