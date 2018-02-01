@@ -1,3 +1,5 @@
 anytree
 networkx
 ply
+z3-solver
+
