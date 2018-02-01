@@ -81,12 +81,16 @@ class AUnOp(AExp):
         aexp.parent = self
 
     def eval(self, state):
-        value = self.children[0].eval(state)
+        value = self.child.eval(state)
         return getattr(value, self.OPERATORS[self.op])()
 
     @property
+    def child(self):
+        return self.children[0]
+
+    @property
     def vars(self):
-        return self.children[0].vars
+        return self.child.vars
 
 class ABinOp(AExp):
     """
@@ -109,17 +113,21 @@ class ABinOp(AExp):
         right.parent = self
 
     def eval(self, state):
-        nodes = self.children
-        left = nodes[0].eval(state)
-        right = nodes[1].eval(state)
+        left = self.left.eval(state)
+        right = self.right.eval(state)
         return getattr(left, self.OPERATORS[self.op])(right)
 
     @property
+    def left(self):
+        return self.children[0]
+
+    @property
+    def right(self):
+        return self.children[1]
+
+    @property
     def vars(self):
-        nodes = self.children
-        left = nodes[0]
-        right = nodes[1]
-        return set.union(left.vars, right.vars)
+        return set.union(self.left.vars, self.right.vars)
 
 if __name__ == '__main__':
     from anytree import RenderTree

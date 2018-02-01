@@ -35,7 +35,7 @@ def generate_test(cfg, path, inputs):
     # Initialize symboles with known unknowns
     symbols = defaultdict(list)
     for var in inputs:
-        symbols[var].append( Int("_" + var + "_" + str(len(symbols[var]))) )
+        new_symbol(var, symbols)
 
     # Generate constraints
     for i in range(len(path) - 1):
@@ -56,8 +56,52 @@ def generate_test(cfg, path, inputs):
         return None
 
 
+def new_symbol(name, symbols):
+    symbol = "_" + name + "_" + str(len(symbols[name]))
+    symbols[name].append(symbol)
+    return symbol
+
+
 def add_aexp(s, symbols, aexp):
-    pass
+    if isinstance(aexp, AConstant):
+        return aexp.value
+
+    elif isinstance(aexp, AVariable):
+        return symbols[aexp.name][-1]
+
+    elif isinstance(aexp, AUnOp):
+        reg = new_symbol("_reg", symbols)
+        symbol = add_aexp(s, symbols, aexp.child)
+        if aexp.op == '-':
+            s.add(reg + symbol == 0)
+        elif aexp.op == '+':
+            s.add(reg == symbols)
+        else:
+            raise ArithmeticError("Unsupported operator {}".format(aexp.op))
+        return reg
+
+    elif isinstance(aexp, ABinOp):
+        reg = new_symbol("_reg", symbols)
+        left_symbol = add_aexp(s, symbols, aexp.left)
+        right_symbol = add_aexp(s, symbol, aexp.right)
+        if aexp.op == '+':
+            s.add(reg == left_symbol + right_symbol)
+        elif aexp.op == '-':
+            s.add(reg == left_symbol - right_symbol)
+        elif aexp.op == '*':
+            s.add(reg == left_symbol * right_symbol)
+        elif aexp.op == '/':
+            s.add(reg == left_symbol // right_symbol)
+        elif aexp.op == '%':
+            s.add(reg == left_symbol % right_symbol)
+        elif aexp.op == '**':
+            s.add(reg == left_symbol ** right_symbol)
+        else:
+            raise ArithmeticError("Unsupported operator {}".format(aexp.op))
+        return reg
+
+    else:
+        return None
 
 
 def add_bexp(s, symbols, bexp):
