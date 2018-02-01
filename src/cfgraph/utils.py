@@ -9,6 +9,8 @@ import networkx as nx
 from itertools import chain
 import copy
 
+###############################################################################
+
 def get_assignments(cfg):
     """
     Returns the set of all the labels of assignment instructions.
@@ -81,6 +83,7 @@ def get_distances(cfg):
 
     return result
 
+
 def get_loop(cfg):
     result = set()
 
@@ -93,6 +96,7 @@ def get_loop(cfg):
 
     return result
 
+
 def get_def(cfg, node):
     result = set()
     leaving_edges = cfg.out_edges(node, data=True)
@@ -102,6 +106,7 @@ def get_def(cfg, node):
 
     return result
 
+
 def get_ref(cfg, node):
     result = set()
     leaving_edges = cfg.out_edges(node, data=True)
@@ -110,6 +115,38 @@ def get_ref(cfg, node):
         result = result.union(edge[2]["com"].vars)
     return result
 
+
+def get_nested_cwhile(cfg):
+    """
+    Build a dict {cwhile node: [cwhile nodes nested in body]}
+    """
+    result = defaultdict(set)
+    visited = set()
+
+    def rec_nested_cwhile(current_node, body_ancestors):
+        if current_node in visited:
+            return
+
+        visited.add(current_node)
+
+        if "type" in cfg.nodes[current_node] and cfg.nodes[current_node]["type"] == "CWHILE":
+            for body_ancestor in body_ancestors:
+                result[body_ancestor].add(current_node)
+            successors = list(cfg.successors(current_node))
+            # The following relies on the internal structure of the cfg, namely
+            # the body of a while statement is the first successor.
+            # TODO: need to be independent from this kind of knowledge
+            rec_nested_cwhile(successors[0], body_ancestors + [current_node])
+            rec_nested_cwhile(successors[1], body_ancestors)
+        else:
+            for succ in cfg.successors(current_node):
+                rec_nested_cwhile(succ, body_ancestors)
+
+    rec_nested_cwhile("START", [])
+
+    return result
+
+###############################################################################
 
 def get_all_def(cfg):
     result = defaultdict(set)
@@ -145,6 +182,7 @@ def get_all_usages(cfg):
 
     return result
 
+
 def get_all_du_paths(cfg):
     result = list()
     for var, def_nodes in get_all_def(cfg).items():
@@ -163,10 +201,13 @@ def get_all_du_paths(cfg):
 
     return result
 
+
 def get_k_paths(cfg, k):
     """
     Generator for valid paths from START to END, of length less than k.
     Implement a depth-first search.
+
+    WARNING: an oracle is needed to throw away unfeasible paths.
 
     Arguments:
         cfg -- Control flow graph of the input program
@@ -188,6 +229,66 @@ def get_k_paths(cfg, k):
             yield current_path
         elif node_k + 1 <= k:
             successors = list(cfg.successors(node))
-            successors.reverse()
+            if "type" in cfg.nodes[node] and cfg.nodes[node]["type"] == "CIF":
+                successors.reverse()
             for succ in successors:
                 next_nodes.append( (succ, node_k + 1) )
+
+
+def get_i_loops(cfg, i):
+    """
+    Generator for valid paths from START to END, with at most i loop executions.
+    Implement a depth-first search.
+
+    WARNING: an oracle is needed to throw away unfeasible paths.
+
+    Arguments:
+        cfg -- Control flow graph of the input program
+        i   -- Max number of iterations for each loop
+    """
+    assert(i >= 0)
+
+    state = defaultdict(int)        # Counter for cwhile nodes (may it reach i, prevent the loop body to be executed)
+
+    nested_cwhile = get_nested_cwhile(cfg)
+
+    current_path = list()
+
+    next_nodes = deque()            # Stack (node, node_position in valid path, current state when node added to stack)
+    next_nodes.append( ("START", 0, state) )
+
+    while next_nodes:
+        node, node_position, state = next_nodes.pop()
+        current_path = current_path[:node_position] + [node]
+
+        if current_path[-1] == "END":
+            yield current_path
+
+        else:
+            successors = list(cfg.successors(node))
+
+            if "type" in cfg.nodes[node]:
+
+                if cfg.nodes[node]["type"] == "CIF":
+                    successors.reverse()
+
+                elif cfg.nodes[node]["type"] == "CWHILE":
+                    # print("successors before", successors)
+                    # The following relies on the internal structure of the cfg, namely
+                    # the body of a while statement is the first successor.
+                    # TODO: need to be independent from this kind of knowledge
+
+                    if state[node] < i:
+                        state[node] = state[node] + 1
+                    else:
+                        successors = successors[1:]
+
+            # Update state
+            new_state = state.copy()
+            # Reset counters for inner loops
+            for cwhile in nested_cwhile[node]:
+                new_state[cwhile] = 0
+
+            # Provision next_nodes stack
+            for succ in successors:
+                next_nodes.append( (succ, node_position + 1, new_state) )

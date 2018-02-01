@@ -13,7 +13,7 @@ from utils.printer import print_ast, print_cfg
 
 
 def main():
-    source_filename = "input/example2.imp"
+    source_filename = "input/simple_while.imp"
     source_file = open(source_filename)
     source_code = source_file.read()
 
@@ -22,8 +22,19 @@ def main():
     ast = parser.parse(source_code)
     print_ast(ast)
 
+    print()
+
     cfg = ast2cfg(ast)
     print_cfg(cfg)
+
+    # print()
+
+    # print(get_ordered_cwhile(cfg))
+
+    # print()
+
+    # for path in get_i_loops(cfg, i=2):
+    #     print(path)
 
     # pos = nx.spring_layout(cfg)
     # nx.draw_networkx(cfg, pos=pos)
@@ -57,8 +68,8 @@ def main():
     print(tester.test_decisions(paths))
     print("= Testing k-path (k=10) =")
     print(tester.test_k_path(paths, k=10))
-    # print("= Testing i-loop (i=2) =")
-    # print(tester.test_i_loop(paths, i=2))
+    print("= Testing i-loop (i=2) =")
+    print(tester.test_i_loop(paths, i=2))
     print("= Testing definitions =")
     print(tester.test_definitions(paths))
     print("= Testing usages =")
