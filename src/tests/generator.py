@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from astree.aexp import *
+from astree.bexp import *
+from astree.com import *
 from collections import defaultdict
 from z3 import *
+
 
 def generate_tests(cfg, paths, inputs):
     """
@@ -23,6 +27,7 @@ def generate_tests(cfg, paths, inputs):
 
     return results
 
+
 def generate_test(cfg, path, inputs):
     # Setup solver
     s = Solver()
@@ -33,6 +38,12 @@ def generate_test(cfg, path, inputs):
         symbols[var].append( Int("_" + var + "_" + str(len(symbols[var]))) )
 
     # Generate constraints
+    for i in range(len(path) - 1):
+        edge = cfg.edges[path[i], path[i+1]]
+        if edge["bexp"] == BConstant(True):
+            add_stmt(s, symbols, edge["com"])
+        else:
+            add_bexp(s, symbols, edge["bexp"])
 
     # Solve and send results
     check = s.check()
@@ -43,3 +54,16 @@ def generate_test(cfg, path, inputs):
         return result
     else:
         return None
+
+
+def add_aexp(s, symbols, aexp):
+    pass
+
+
+def add_bexp(s, symbols, bexp):
+    pass
+
+
+def add_stmt(s, symbols, stmt):
+    pass
+
