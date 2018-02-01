@@ -5,9 +5,9 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 from cfgraph.runners import run_test_set, reachable_nodes
-from cfgraph.tester import Tester
 from cfgraph.utils import *
 from syntax.parser import parser
+from tests.tester import Tester
 from utils.ast2cfg import ast2cfg
 from utils.printer import print_ast, print_cfg
 
