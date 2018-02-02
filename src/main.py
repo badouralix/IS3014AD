@@ -13,7 +13,7 @@ from utils.printer import print_ast, print_cfg
 
 
 def main():
-    source_filename = "input/simple_while.imp"
+    source_filename = "input/example.imp"
     source_file = open(source_filename)
     source_code = source_file.read()
 

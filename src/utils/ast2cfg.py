@@ -56,7 +56,7 @@ def recursive_ast2cfg(previous_edges, ast, cfg):
         for previous_node, bexp, stmt in previous_edges:
             cfg.add_edge(previous_node, ast.label, bexp=bexp, stmt=stmt)
 
-    if isinstance(ast, SAssign) or isinstance(ast, SPrint):
+    if isinstance(ast, SAssign) or isinstance(ast, SInput) or isinstance(ast, SPrint):
         # Assign: simply return an half-edge with the assignment AST as stmt.
             return cfg, {(ast.label, BConstant(True), ast)}
     elif isinstance(ast, SIf):

@@ -1,3 +1,5 @@
+0:  input(x);
+
 1:  while (x > 0) {
     2:  y := 5;
     3:  while (y > 0) {

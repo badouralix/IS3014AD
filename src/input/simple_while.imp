@@ -1,7 +1,9 @@
-0:  y := 0;
-1:  while (x > 0) {
-    2:  while (y > 0) {
-        3:  y := y - 1;
+0:  input(x);
+1:  input(y);
+
+2:  while (x > 0) {
+3:      while (y > 0) {
+4:          y := y - 1;
+        }
+5:      x := x - 1;
     }
-    4:  x := x - 1;
-}

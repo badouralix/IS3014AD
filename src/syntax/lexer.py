@@ -9,7 +9,8 @@ reserved = {
     'if' : 'IF',
     'else' : 'ELSE',
     'while' : 'WHILE',
-    'print' : 'PRINT'
+    'input' : 'INPUT',
+    'print' : 'PRINT',
 }
 
 va = (

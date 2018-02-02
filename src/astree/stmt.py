@@ -13,6 +13,7 @@ Sources
 """
 
 from anytree import AnyNode
+from astree.aexp import AVariable
 
 
 class Stmt(AnyNode):
@@ -116,18 +117,46 @@ class SWhile(Stmt):
             return state
 
 
+class SInput(Stmt):
+    def __init__(self, aexp, label=None):
+        super().__init__(typename="SINPUT", label=label)
+        aexp.parent = self
+
+    def exec(self, state):
+        if isinstance(self.child, AVariable):
+            if not self.child.name in state:
+                value = input("Input : {varname} = ".format(varname=self.child.name))
+                state[self.child.name] = int(value)     # TODO: try except
+        else:
+            raise TypeError("Input type is {type} at node {label}".format(type=self.child.typename, label=self.label))
+        return state
+
+    @property
+    def child(self):
+        return self.children[0]
+
+    @property
+    def vars(self):
+        return self.child.vars
+
+
 class SPrint(Stmt):
     def __init__(self, aexp, label=None):
         super().__init__(typename="SPRINT", label=label)
         aexp.parent = self
 
     def exec(self, state):
-        aexp = self.children[0]
+        # print(self.child.eval(state))
         return state
 
     @property
+    def child(self):
+        return self.children[0]
+
+    @property
     def vars(self):
-        return self.children[0].vars
+        return self.child.vars
+
 
 if __name__ == '__main__':
     import os, sys

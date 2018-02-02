@@ -46,6 +46,13 @@ def p_stmt_swhile(p):
     """
     p[0] = SWhile(p[5], p[8], label=p[1])
 
+def p_stmt_sinput(p):
+    """
+    stmt : NUMBER ':' INPUT '(' ID ')' ';'
+    """
+    p[0] = SInput(AVariable(p[5]), label=p[1])
+
+
 def p_stmt_sprint(p):
     """
     stmt : NUMBER ':' PRINT '(' aexp ')' ';'
