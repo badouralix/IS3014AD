@@ -15,13 +15,13 @@ Sources
 from anytree import AnyNode
 
 
-class Com(AnyNode):
-    def __init__(self, typename="COM", label=None, **kwargs):
+class Stmt(AnyNode):
+    def __init__(self, typename="STMT", label=None, **kwargs):
         """[summary]
 
         Arguments:
-            typename -- type of the Com
-            label    -- label of the Com for the labeled WHILE language
+            typename -- type of the statement
+            label    -- label of the statement for the labeled WHILE language
             kwargs   -- optional keywords
         """
         super().__init__()
@@ -36,9 +36,9 @@ class Com(AnyNode):
             return "{}()".format(self.__class__.__name__)
 
 
-class CSkip(Com):
+class SSkip(Stmt):
     def __init__(self, label=None):
-        super().__init__(typename="CSKIP", label=label)
+        super().__init__(typename="SSKIP", label=label)
 
     def exec(self, state):
         return state
@@ -48,9 +48,9 @@ class CSkip(Com):
         return {}
 
 
-class CAssign(Com):
+class SAssign(Stmt):
     def __init__(self, var, exp, label=None):
-        super().__init__(typename="CASSIGN", label=label)
+        super().__init__(typename="SASSIGN", label=label)
         var.parent = self
         exp.parent = self
 
@@ -74,9 +74,9 @@ class CAssign(Com):
         return self.children[1].vars
 
 
-class CSequence(Com):
+class SSequence(Stmt):
     def __init__(self, *args, label=None):
-        super().__init__(typename="CSEQUENCE", label=label)
+        super().__init__(typename="SSEQUENCE", label=label)
         for arg in args:
             arg.parent = self
 
@@ -86,39 +86,39 @@ class CSequence(Com):
         return state
 
 
-class CIf(Com):
-    def __init__(self, bexp, ctrue, cfalse=CSkip(), label=None):
-        super().__init__(typename="CIF", label=label)
+class SIf(Stmt):
+    def __init__(self, bexp, strue, sfalse=SSkip(), label=None):
+        super().__init__(typename="SIF", label=label)
         bexp.parent = self
-        ctrue.parent = self
-        cfalse.parent = self
+        strue.parent = self
+        sfalse.parent = self
 
     def exec(self, state):
-        bexp, ctrue, cfalse = self.children
+        bexp, strue, sfalse = self.children
         if bexp.eval(state):
-            return ctrue.exec(state)
+            return strue.exec(state)
         else:
-            return cfalse.exec(state)
+            return sfalse.exec(state)
 
 
-class CWhile(Com):
-    def __init__(self, bexp, com, label=None):
-        super().__init__(typename="CWHILE", label=label)
+class SWhile(Stmt):
+    def __init__(self, bexp, stmt, label=None):
+        super().__init__(typename="SWHILE", label=label)
         bexp.parent = self
-        com.parent = self
+        stmt.parent = self
 
     def exec(self, state):
-        bexp, com = self.children
+        bexp, stmt = self.children
         if bexp.eval(state):
-            com.exec(state)
+            stmt.exec(state)
             return self.exec(state)
         else:
             return state
 
 
-class CPrint(Com):
+class SPrint(Stmt):
     def __init__(self, aexp, label=None):
-        super().__init__(typename="CPRINT", label=label)
+        super().__init__(typename="SPRINT", label=label)
         aexp.parent = self
 
     def exec(self, state):
@@ -135,10 +135,10 @@ if __name__ == '__main__':
     from astree.aexp import *
     from astree.bexp import *
     from utils.printer import print_ast
-    ast = CSequence(CSkip(), CSequence(CAssign(AVariable('X'), ABinOp('+', AConstant(1), AConstant(1)), label=2), CSkip(), label=1), label=0)
-    ast = CIf(BBinOp('==', AVariable('X'), AConstant(0)), CAssign(AVariable('Y'), AConstant(1)), label=0)
-    ast = CWhile(BBinOp('!=', AVariable('X'), AConstant(5)), CAssign(AVariable('X'), ABinOp('+', AVariable('X'), AConstant(1)), label=1), label=0)
-    ast = CSequence(CAssign(AVariable('X'), AConstant(1), label=1), CAssign(AVariable('Y'), AConstant(2), label=2), CAssign(AVariable('Z'), AConstant(3), label=3), label=0)
-    ast = CPrint(AVariable('X'))
+    ast = SSequence(SSkip(), SSequence(SAssign(AVariable('X'), ABinOp('+', AConstant(1), AConstant(1)), label=2), SSkip(), label=1), label=0)
+    ast = SIf(BBinOp('==', AVariable('X'), AConstant(0)), SAssign(AVariable('Y'), AConstant(1)), label=0)
+    ast = SWhile(BBinOp('!=', AVariable('X'), AConstant(5)), SAssign(AVariable('X'), ABinOp('+', AVariable('X'), AConstant(1)), label=1), label=0)
+    ast = SSequence(SAssign(AVariable('X'), AConstant(1), label=1), SAssign(AVariable('Y'), AConstant(2), label=2), SAssign(AVariable('Z'), AConstant(3), label=3), label=0)
+    ast = SPrint(AVariable('X'))
     print_ast(ast)
     print(ast.exec({'X': 0}))

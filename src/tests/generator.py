@@ -3,7 +3,7 @@
 
 from astree.aexp import *
 from astree.bexp import *
-from astree.com import *
+from astree.stmt import *
 from collections import defaultdict
 from z3 import *
 
@@ -41,7 +41,7 @@ def generate_test(cfg, path, inputs):
     for i in range(len(path) - 1):
         edge = cfg.edges[path[i], path[i+1]]
         if edge["bexp"] == BConstant(True):
-            add_stmt(s, symbols, edge["com"])
+            add_stmt(s, symbols, edge["stmt"])
         else:
             add_bexp(s, symbols, edge["bexp"])
 

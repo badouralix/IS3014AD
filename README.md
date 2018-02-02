@@ -36,6 +36,6 @@ What should we do?
 
 ## TODO
 
-- implement "take a step" for `Com`
+- implement "take a step" for `Stmt`
 - implement a data struct for the state with a copy method used in
   (cfgraph/utils.py)

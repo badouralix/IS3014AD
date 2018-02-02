@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from queue import Queue
-from astree.bexp import BConstant, BExp
-from astree.com import CAssign
 from collections import defaultdict, deque
-import networkx as nx
 from itertools import chain
+from queue import Queue
 import copy
+import networkx as nx
+
+from astree.bexp import BConstant
+from astree.stmt import SAssign
 
 ###############################################################################
 
@@ -26,7 +27,7 @@ def get_assignments(cfg):
 
     for src, dest in cfg.edges:
         edge = cfg.edges[src, dest]
-        if isinstance(edge['com'], CAssign):
+        if isinstance(edge["stmt"], SAssign):
             result.add(src)
 
     return result
@@ -89,7 +90,7 @@ def get_loop(cfg):
 
     for node, data in cfg.nodes().data():
         try:
-            if data["type"] == "CWHILE":
+            if data["type"] == "SWHILE":
                 result.add(node)
         except:
             pass
@@ -101,8 +102,8 @@ def get_def(cfg, node):
     result = set()
     leaving_edges = cfg.out_edges(node, data=True)
     for edge in leaving_edges:
-        if isinstance(edge[2]["com"], CAssign):
-            result = result.union(edge[2]["com"].assigned_var)
+        if isinstance(edge[2]["stmt"], SAssign):
+            result = result.union(edge[2]["stmt"].assigned_var)
 
     return result
 
@@ -112,37 +113,37 @@ def get_ref(cfg, node):
     leaving_edges = cfg.out_edges(node, data=True)
     for edge in leaving_edges:
         result = result.union(edge[2]["bexp"].vars)
-        result = result.union(edge[2]["com"].vars)
+        result = result.union(edge[2]["stmt"].vars)
     return result
 
 
-def get_nested_cwhile(cfg):
+def get_nested_swhile(cfg):
     """
-    Build a dict {cwhile node: [cwhile nodes nested in body]}
+    Build a dict {swhile node: [swhile nodes nested in body]}
     """
     result = defaultdict(set)
     visited = set()
 
-    def rec_nested_cwhile(current_node, body_ancestors):
+    def rec_nested_swhile(current_node, body_ancestors):
         if current_node in visited:
             return
 
         visited.add(current_node)
 
-        if "type" in cfg.nodes[current_node] and cfg.nodes[current_node]["type"] == "CWHILE":
+        if "type" in cfg.nodes[current_node] and cfg.nodes[current_node]["type"] == "SWHILE":
             for body_ancestor in body_ancestors:
                 result[body_ancestor].add(current_node)
             successors = list(cfg.successors(current_node))
             # The following relies on the internal structure of the cfg, namely
             # the body of a while statement is the first successor.
             # TODO: need to be independent from this kind of knowledge
-            rec_nested_cwhile(successors[0], body_ancestors + [current_node])
-            rec_nested_cwhile(successors[1], body_ancestors)
+            rec_nested_swhile(successors[0], body_ancestors + [current_node])
+            rec_nested_swhile(successors[1], body_ancestors)
         else:
             for succ in cfg.successors(current_node):
-                rec_nested_cwhile(succ, body_ancestors)
+                rec_nested_swhile(succ, body_ancestors)
 
-    rec_nested_cwhile("START", [])
+    rec_nested_swhile("START", [])
 
     return result
 
@@ -229,7 +230,7 @@ def get_k_paths(cfg, k):
             yield current_path
         elif node_k + 1 <= k:
             successors = list(cfg.successors(node))
-            if "type" in cfg.nodes[node] and cfg.nodes[node]["type"] == "CIF":
+            if "type" in cfg.nodes[node] and cfg.nodes[node]["type"] == "SIF":
                 successors.reverse()
             for succ in successors:
                 next_nodes.append( (succ, node_k + 1) )
@@ -248,9 +249,9 @@ def get_i_loops(cfg, i):
     """
     assert(i >= 0)
 
-    state = defaultdict(int)        # Counter for cwhile nodes (may it reach i, prevent the loop body to be executed)
+    state = defaultdict(int)        # Counter for swhile nodes (may it reach i, prevent the loop body to be executed)
 
-    nested_cwhile = get_nested_cwhile(cfg)
+    nested_swhile = get_nested_swhile(cfg)
 
     current_path = list()
 
@@ -269,10 +270,10 @@ def get_i_loops(cfg, i):
 
             if "type" in cfg.nodes[node]:
 
-                if cfg.nodes[node]["type"] == "CIF":
+                if cfg.nodes[node]["type"] == "SIF":
                     successors.reverse()
 
-                elif cfg.nodes[node]["type"] == "CWHILE":
+                elif cfg.nodes[node]["type"] == "SWHILE":
                     # print("successors before", successors)
                     # The following relies on the internal structure of the cfg, namely
                     # the body of a while statement is the first successor.
@@ -286,8 +287,8 @@ def get_i_loops(cfg, i):
             # Update state
             new_state = state.copy()
             # Reset counters for inner loops
-            for cwhile in nested_cwhile[node]:
-                new_state[cwhile] = 0
+            for swhile in nested_swhile[node]:
+                new_state[swhile] = 0
 
             # Provision next_nodes stack
             for succ in successors:

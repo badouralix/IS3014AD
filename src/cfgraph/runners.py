@@ -23,8 +23,8 @@ def run_test(cfg, init_state):
     while current_node != "END":
         for succ_node in cfg.successors(current_node):
             edge = cfg.edges[current_node, succ_node]
-            if edge['bexp'].eval(state):
-                edge['com'].exec(state)
+            if edge["bexp"].eval(state):
+                edge["stmt"].exec(state)
                 current_node = succ_node
                 break
 

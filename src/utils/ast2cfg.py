@@ -5,7 +5,7 @@ import copy
 import networkx as nx
 
 from astree.bexp import *
-from astree.com import *
+from astree.stmt import *
 
 def add_start_node(cfg):
     cfg.add_node("START")
@@ -23,12 +23,12 @@ def ast2cfg(ast):
 
     add_start_node(cfg)
 
-    cfg, dangling_edges = recursive_ast2cfg({("START", BConstant(True), CSkip())}, ast, cfg)
+    cfg, dangling_edges = recursive_ast2cfg({("START", BConstant(True), SSkip())}, ast, cfg)
 
     add_end_node(cfg)
 
-    for previous_node, bexp, com in dangling_edges:
-        cfg.add_edge(previous_node, "END", bexp=bexp, com=com)
+    for previous_node, bexp, stmt in dangling_edges:
+        cfg.add_edge(previous_node, "END", bexp=bexp, stmt=stmt)
 
     return cfg
 
@@ -39,45 +39,45 @@ def recursive_ast2cfg(previous_edges, ast, cfg):
         It takes some half-edges (one node + edge properties) an ast, and a cfg.
         It returns an updated cfg and some other half-edges.
         Event if each type of AST should be treated differently, there are somme common points :
-        CAssign, CIf and CWhile all create a node with the label of the assign/if/while instruction.
+        SAssign, SIf and SWhile all create a node with the label of the assign/if/while instruction.
         This part is factorized for lisibility.
 
-        TODO: CSkip needs to be properly handled
+        TODO: SSkip needs to be properly handled
     """
 
-    if not isinstance(ast, CSequence):
+    if not isinstance(ast, SSequence):
         # If ast is assign/if/while, we can create a top-level node and link dangling edges to it
-        if isinstance(ast, CWhile):
-            cfg.add_node(ast.label, type="CWHILE")
-        elif isinstance(ast, CIf):
-            cfg.add_node(ast.label, type="CIF")
+        if isinstance(ast, SWhile):
+            cfg.add_node(ast.label, type="SWHILE")
+        elif isinstance(ast, SIf):
+            cfg.add_node(ast.label, type="SIF")
         else:
             cfg.add_node(ast.label)
-        for previous_node, bexp, com in previous_edges:
-            cfg.add_edge(previous_node, ast.label, bexp=bexp, com=com)
+        for previous_node, bexp, stmt in previous_edges:
+            cfg.add_edge(previous_node, ast.label, bexp=bexp, stmt=stmt)
 
-    if isinstance(ast, CAssign) or isinstance(ast, CPrint):
-        # Assign: simply return an half-edge with the assignment AST as com.
+    if isinstance(ast, SAssign) or isinstance(ast, SPrint):
+        # Assign: simply return an half-edge with the assignment AST as stmt.
             return cfg, {(ast.label, BConstant(True), ast)}
-    elif isinstance(ast, CIf):
+    elif isinstance(ast, SIf):
         # If: convert "if condition true" ast, link top-level node to it with condition true,
         # then convert "if condition false" ast, link top-level node to it with ! (not) condition.
         bexp, ctrue, cfalse = ast.children
         cfg, true_branch_dangling_edges = recursive_ast2cfg(
             {
-                (ast.label, bexp, CSkip())
+                (ast.label, bexp, SSkip())
             }, ctrue, cfg)
-        if not isinstance(cfalse, CSkip):
+        if not isinstance(cfalse, SSkip):
             cfg, false_branch_dangling_edges = recursive_ast2cfg(
                 {
-                    (ast.label, BUnOp("!", bexp), CSkip())
+                    (ast.label, BUnOp("!", bexp), SSkip())
                 }, cfalse, cfg)
             # Gather all dangling edges leaving those newly converted cfg parts and return them
             true_branch_dangling_edges.update(false_branch_dangling_edges)
         else:
-            true_branch_dangling_edges.update([(ast.label, BUnOp("!", bexp), CSkip())])
+            true_branch_dangling_edges.update([(ast.label, BUnOp("!", bexp), SSkip())])
         return cfg, true_branch_dangling_edges
-    elif isinstance(ast, CSequence):
+    elif isinstance(ast, SSequence):
         # Sequence is different : no top-level node.
         # We sequentially convert all sub-ast of sequence ast, passing dangling edges from one
         # to the next one
@@ -87,19 +87,19 @@ def recursive_ast2cfg(previous_edges, ast, cfg):
             cfg, edges_to_transfer = recursive_ast2cfg(edges_to_transfer, sub_ast, cfg)
         # Return dangling edges at the end of the conversion
         return cfg, edges_to_transfer
-    elif isinstance(ast, CWhile):
+    elif isinstance(ast, SWhile):
         # We convert the "condition true" sub ast
         bexp, ctrue = ast.children
         cfg, true_branch_dangling_edges = recursive_ast2cfg(
             {
-                (ast.label, bexp, CSkip())
+                (ast.label, bexp, SSkip())
             }, ctrue, cfg
         )
         # And we link output dangling edges to the top level-node to actually create the loop
-        for previous_node, bexp, com in true_branch_dangling_edges:
-            cfg.add_edge(previous_node, ast.label, bexp=bexp, com=com)
+        for previous_node, bexp, stmt in true_branch_dangling_edges:
+            cfg.add_edge(previous_node, ast.label, bexp=bexp, stmt=stmt)
         # Return an half-edge that will be followed if while condition does not apply
-        return cfg, {(ast.label, BUnOp("!", ast.children[0]), CSkip())}
+        return cfg, {(ast.label, BUnOp("!", ast.children[0]), SSkip())}
 
 
 if __name__ == "__main__":
@@ -109,15 +109,15 @@ if __name__ == "__main__":
     from astree.bexp import *
 
 
-    true_ast = CAssign(AVariable('X'), AConstant(2), label=3)
-    false_ast = CAssign(AVariable('Y'), AConstant(4), label=4)
-    if_ast = CIf(BConstant(True), true_ast, false_ast, label=2)
+    true_ast = SAssign(AVariable('X'), AConstant(2), label=3)
+    false_ast = SAssign(AVariable('Y'), AConstant(4), label=4)
+    if_ast = SIf(BConstant(True), true_ast, false_ast, label=2)
 
-    assign_ast = CAssign(AVariable('Z'), AVariable('X'), label=5)
-    assign_ast_bis = CAssign(AVariable('Y'), AConstant('3'), label=6)
-    seq_ast = CSequence(if_ast, assign_ast, assign_ast_bis)
+    assign_ast = SAssign(AVariable('Z'), AVariable('X'), label=5)
+    assign_ast_bis = SAssign(AVariable('Y'), AConstant('3'), label=6)
+    seq_ast = SSequence(if_ast, assign_ast, assign_ast_bis)
 
-    while_ast=CWhile(BConstant(True), seq_ast, label=1)
+    while_ast=SWhile(BConstant(True), seq_ast, label=1)
 
     cfg = ast2cfg(while_ast)
     print_cfg(cfg)

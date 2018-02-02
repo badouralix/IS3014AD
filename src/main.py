@@ -27,9 +27,9 @@ def main():
     cfg = ast2cfg(ast)
     print_cfg(cfg)
 
-    # print()
+    print()
 
-    # print(get_ordered_cwhile(cfg))
+    # print(get_ordered_swhile(cfg))
 
     # print()
 
