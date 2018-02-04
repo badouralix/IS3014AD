@@ -203,7 +203,7 @@ def get_all_du_paths(cfg):
     return result
 
 
-def get_k_paths(cfg, k):
+def gen_k_paths(cfg, k):
     """
     Generator for valid paths from START to END, of length less than k.
     Implement a depth-first search.
@@ -236,7 +236,7 @@ def get_k_paths(cfg, k):
                 next_nodes.append( (succ, node_k + 1) )
 
 
-def get_i_loops(cfg, i):
+def gen_i_loops(cfg, i):
     """
     Generator for valid paths from START to END, with at most i loop executions.
     Implement a depth-first search.

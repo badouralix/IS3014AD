@@ -33,7 +33,7 @@ def main():
 
     # print()
 
-    # for path in get_i_loops(cfg, i=2):
+    # for path in gen_i_loops(cfg, i=2):
     #     print(path)
 
     # pos = nx.spring_layout(cfg)

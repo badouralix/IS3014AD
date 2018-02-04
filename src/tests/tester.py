@@ -42,7 +42,7 @@ class Tester():
 
     def test_k_path(self, paths, k):
         missing_k_paths = list()
-        for k_path in get_k_paths(self.cfg, k):
+        for k_path in gen_k_paths(self.cfg, k):
             if not k_path in paths:
                 missing_k_paths.append(k_path)
         return missing_k_paths
@@ -50,7 +50,7 @@ class Tester():
 
     def test_i_loop(self, paths, i):
         missing_i_loops = list()
-        for i_loop in get_i_loops(self.cfg, i):
+        for i_loop in gen_i_loops(self.cfg, i):
             if not i_loop in paths:
                 missing_i_loops.append(i_loop)
         return missing_i_loops
