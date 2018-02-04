@@ -73,10 +73,11 @@ class BUnOp(BExp):
             self.op = op
         else:
             raise TypeError("Unknown unary boolean operator {}".format(self.op))
+        self.child = bexp
         bexp.parent = self
 
     def eval(self, state):
-        value = self.children[0].eval(state)
+        value = self.child.eval(state)
         if self.op == '!':
             return not value
         else:
@@ -105,8 +106,19 @@ class BBinOp(BExp):
 
     def __init__(self, op, left, right):
         super().__init__(typename="BBINOP")
+
         self.op = op
+        if self.op in ['&&', '||', '^']:
+            self.subtypes = "BEXP"
+        elif self.op in ['==', '!=', '<', '<=', '>', '>=']:
+            self.subtypes = "AEXP"
+        else:
+            raise TypeError("Unknown binary boolean operator {}".format(self.op))
+
+        self.left = left
         left.parent = self
+
+        self.right = right
         right.parent = self
 
     def eval(self, state):

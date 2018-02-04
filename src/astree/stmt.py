@@ -50,21 +50,23 @@ class SSkip(Stmt):
 
 
 class SAssign(Stmt):
-    def __init__(self, var, exp, label=None):
+    def __init__(self, var, aexp, label=None):
         super().__init__(typename="SASSIGN", label=label)
+
+        self.var = var
         var.parent = self
-        exp.parent = self
+
+        self.aexp = aexp
+        aexp.parent = self
 
     def exec(self, state):
-        var, exp = self.children
-        value = exp.eval(state)
-        state[var.name] = value             # should var be a string or an aexp?
+        value = self.aexp.eval(state)
+        state[self.var.name] = value        # should var be a string or an aexp? an aexp of type AVariable
         return state
 
     def eval(self, state):
-        var, _ = self.children
         self.exec(state)
-        return state[var.name]
+        return state[self.var.name]
 
     @property
     def assigned_var(self):
