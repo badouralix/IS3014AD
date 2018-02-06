@@ -1,5 +1,6 @@
 anytree
 networkx
 ply
+pygraphviz
 z3-solver
 

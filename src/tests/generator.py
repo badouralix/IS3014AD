@@ -196,7 +196,8 @@ if __name__ == "__main__":
     paths = list()
     for path in gen_k_paths(cfg, 10):
         paths.append(path)
-    path = paths[2]
+    path = paths[1]
+    print(path)
 
     print()
 

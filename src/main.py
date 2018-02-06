@@ -9,13 +9,14 @@ from cfgraph.utils import *
 from syntax.parser import parser
 from tests.tester import Tester
 from utils.ast2cfg import ast2cfg
-from utils.printer import print_ast, print_cfg
+from utils.printer import print_ast, print_cfg, write_cfg
 
 
 def main():
-    source_filename = "input/example.imp"
-    source_file = open(source_filename)
-    source_code = source_file.read()
+    input_dir = "input"
+    filename = "example.imp"
+    with open(f"{input_dir}/{filename}") as f:
+        source_code = f.read()
 
     # print(source_code)
 
@@ -26,6 +27,7 @@ def main():
 
     cfg = ast2cfg(ast)
     print_cfg(cfg)
+    write_cfg(cfg, filename)
 
     print()
 
@@ -35,12 +37,6 @@ def main():
 
     # for path in gen_i_loops(cfg, i=2):
     #     print(path)
-
-    # pos = nx.spring_layout(cfg)
-    # nx.draw_networkx(cfg, pos=pos)
-    # nx.draw_networkx_edge_labels(cfg, pos=pos, font_size=4)
-    # limits = plt.axis("off")
-    # plt.show()
 
     # print(run_test(cfg, {'X': -1}))
 

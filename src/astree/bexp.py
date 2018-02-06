@@ -73,7 +73,6 @@ class BUnOp(BExp):
             self.op = op
         else:
             raise TypeError("Unknown unary boolean operator {}".format(self.op))
-        self.child = bexp
         bexp.parent = self
 
     def eval(self, state):
@@ -84,8 +83,12 @@ class BUnOp(BExp):
             raise TypeError("Unknown unary boolean operator {}".format(self.op))
 
     @property
+    def child(self):
+        return self.children[0]
+
+    @property
     def vars(self):
-        return self.children[0].vars
+        return self.child.vars
 
 class BBinOp(BExp):
     """
@@ -107,32 +110,35 @@ class BBinOp(BExp):
     def __init__(self, op, left, right):
         super().__init__(typename="BBINOP")
 
-        self.op = op
-        if self.op in ['&&', '||', '^']:
-            self.subtypes = "BEXP"
-        elif self.op in ['==', '!=', '<', '<=', '>', '>=']:
-            self.subtypes = "AEXP"
+        if op in ['&&', '||', '^'] + ['==', '!=', '<', '<=', '>', '>=']:
+            self.op = op
         else:
             raise TypeError("Unknown binary boolean operator {}".format(self.op))
 
-        self.left = left
         left.parent = self
-
-        self.right = right
         right.parent = self
 
     def eval(self, state):
-        nodes = self.children
-        left = nodes[0].eval(state)
-        right = nodes[1].eval(state)
-        return getattr(left, self.OPERATORS[self.op])(right)
+        return getattr(self.left, self.OPERATORS[self.op])(self.right)
+
+    @property
+    def subtypes(self):
+        if self.op in ['==', '!=', '<', '<=', '>', '>=']:
+            return "AEXP"
+        elif self.op in ['&&', '||', '^']:
+            return "BEXP"
+
+    @property
+    def left(self):
+        return self.children[0]
+
+    @property
+    def right(self):
+        return self.children[1]
 
     @property
     def vars(self):
-        nodes = self.children
-        left = nodes[0]
-        right = nodes[1]
-        return set.union(left.vars, right.vars)
+        return set.union(self.left.vars, self.right.vars)
 
 if __name__ == '__main__':
     from aexp import *

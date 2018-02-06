@@ -78,6 +78,7 @@ class AUnOp(AExp):
     def __init__(self, op, aexp):
         super().__init__(typename="AUNOP")
         self.op = op
+
         aexp.parent = self
 
     def eval(self, state):
@@ -109,6 +110,7 @@ class ABinOp(AExp):
     def __init__(self, op, left, right):
         super().__init__(typename="ABINOP")
         self.op = op
+
         left.parent = self
         right.parent = self
 

@@ -61,7 +61,7 @@ class SAssign(Stmt):
 
     def exec(self, state):
         value = self.aexp.eval(state)
-        state[self.var.name] = value        # should var be a string or an aexp? an aexp of type AVariable
+        state[self.var.name] = value
         return state
 
     def eval(self, state):
