@@ -5,7 +5,8 @@ from collections import Counter
 
 
 def run_test(cfg, init_state):
-    """[summary]
+    """
+    Run an execution given initial values for variables.
 
     Arguments:
         cfg        -- control flow graph of the input program
@@ -16,7 +17,7 @@ def run_test(cfg, init_state):
         state -- state after execution
     """
 
-    state = init_state.copy()   # TODO: use another data struct than a dict
+    state = init_state.copy()
     current_node = "START"
     path = ["START"]
 
@@ -34,21 +35,21 @@ def run_test(cfg, init_state):
 
 
 def run_test_set(cfg, valuations):
-    paths = []
-    for valuation in valuations:
-        path, end_state = run_test(cfg, valuation)
-        paths.append(path)
-    return paths
-
-
-def reachable_nodes(path):
-    """[summary]
+    """
+    Run executions for all given tests.
 
     Arguments:
-        path -- [description]
+        cfg        -- control flow graph of the input program
+        valuations -- a list of tests
 
     Returns:
-        [type] -- [description]
+        paths -- list of paths of executions
     """
 
-    return Counter(path)
+    paths = list()
+
+    for valuation in valuations:
+        path, _ = run_test(cfg, valuation)
+        paths.append(path)
+
+    return paths

@@ -4,7 +4,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 
-from cfgraph.runners import run_test_set, reachable_nodes
+from cfgraph.runners import run_test_set
 from cfgraph.utils import *
 from syntax.parser import parser
 from tests.tester import Tester
@@ -21,35 +21,15 @@ def main():
     # print(source_code)
 
     ast = parser.parse(source_code)
-    print_ast(ast)
 
-    print()
-
-    cfg = ast2cfg(ast)
-    print_cfg(cfg)
-    write_cfg(cfg, filename)
-
-    print()
-
-    # print(get_ordered_swhile(cfg))
-
+    # print_ast(ast)
     # print()
 
-    # for path in gen_i_loops(cfg, i=2):
-    #     print(path)
+    cfg = ast2cfg(ast)
+    write_cfg(cfg, filename)
 
-    # print(run_test(cfg, {'X': -1}))
-
-    # print("== Running tests ==")
-    # tester = Tester(cfg)
-    # print("= Testing assignements =")
-    # print(tester.test_assignments(run_test(cfg, {'x': 0})[0]))
-    # print("= Testing decisions =")
-    # print(tester.test_decisions(run_test(cfg, {'x': 0})[0]))
-    # print("= Testing i-loop (i=2) =")
-    # print(tester.test_i_loop(run_test(cfg, {'x': 0})[0], i=2))
-    # print("= Testing definitions =")
-    # print(tester.test_definitions(run_test(cfg, {'x': 0})[0]))
+    # print_cfg(cfg)
+    # print()
 
     test_set= [{'x': 0},
                {'x': -1},
