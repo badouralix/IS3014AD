@@ -14,17 +14,24 @@
 
 7:      if (sqrt * sqrt == p) {
 8:          prime := 0;
+9:          n := sqrt;      // Save divisor
         } else {
 
-9:          n := 2;
+10:         n := 2;
 
-10:         while ((prime == 1) && (n < sqrt)) {
-11:             if (p % n == 0) {
-12:                 prime := 0;
+11:         while ((prime == 1) && (n < sqrt)) {
+12:             if (p % n == 0) {
+13:                 prime := 0;
+                } else {
+14:                 n := n + 1;
                 }
-13:              n := n + 1;
             }
         }
     }
 
-14: print(prime);
+15: print(prime);
+
+    // Print divisor if p not prime
+16: if (prime == 0) {
+17:     print(n);
+    }
