@@ -99,8 +99,6 @@ class SIf(Stmt):
     def exec(self, state=dict(), verbose=True):
         bexp, strue, sfalse = self.children
         if bexp.eval(state):
-            print(bexp)
-            print(bexp.eval(state))
             return strue.exec(state, verbose)
         else:
             return sfalse.exec(state, verbose)
