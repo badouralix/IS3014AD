@@ -1,0 +1,30 @@
+0:  input(p);
+
+1:  prime := 1;
+
+2:  if (p < 2) {
+3:      prime := 0;
+    } else {
+
+4:      sqrt := 2;
+
+5:      while (sqrt * sqrt < p) {
+6:          sqrt := sqrt + 1;
+        }
+
+7:      if (sqrt * sqrt == p) {
+8:          prime := 0;
+        } else {
+
+9:          n := 2;
+
+10:         while ((prime == 1) && (n < sqrt)) {
+11:             if (p % n == 0) {
+12:                 prime := 0;
+                }
+13:              n := n + 1;
+            }
+        }
+    }
+
+14: print(prime);
