@@ -11,7 +11,7 @@ from collections import defaultdict
 from z3 import *
 
 
-def generate_tests(cfg, paths):
+def generate_tests(cfg, paths, verbose=False):
     """
     Compute a set of tests such that the set of executions in the given cfg
     matches the given set of paths.
@@ -24,14 +24,14 @@ def generate_tests(cfg, paths):
     results = list()
 
     for path in paths:
-        result = generate_test(cfg, path)
+        result = generate_test(cfg, path, verbose)
         if not result is None:
             results.append(result)
 
     return results
 
 
-def generate_test(cfg, path):
+def generate_test(cfg, path, verbose=False):
     # Setup solver
     s = Solver()
 
@@ -47,15 +47,28 @@ def generate_test(cfg, path):
         else:
             add_stmt(s, symbols, edge["stmt"], inputs)
 
+    if verbose:
+        print(f"Free variables in problem: {inputs}")
+        print(f"Generated symbols: {dict(symbols)}")
+        print(f"Problem given to Z3: {s}")
+
     # Solve and send results
-    s.check()
+    check = s.check()
+
+    if verbose:
+        print(f"Status of the solver: {check}")
+
     try:
         result = dict()
         for var in inputs:
             result[var] = s.model()[symbols[var][0]]
+
+        if verbose:
+            print(f"One test found for path {path}: {result}")
+
         return result
     except:
-        print("No test found for path {path}".format(path=path))
+        print(f"No test found for path {path}")
         return None
 
 
@@ -177,52 +190,15 @@ if __name__ == "__main__":
     from cfgraph.utils import gen_k_paths
     from syntax.parser import parser
     from utils.ast2cfg import ast2cfg
-    from utils.printer import print_ast, print_cfg
 
-    source_filename = "input/example.imp"
-    with open(source_filename) as f:
+    input_dir = "input"
+    filename = "example.imp"
+    with open(f"{input_dir}/{filename}") as f:
         source_code = f.read()
 
     ast = parser.parse(source_code)
-    print_ast(ast)
-
-    print()
-
     cfg = ast2cfg(ast)
-    print_cfg(cfg)
 
-    print()
-
-    paths = list()
     for path in gen_k_paths(cfg, 10):
-        paths.append(path)
-    path = paths[1]
-    print(path)
-
-    print()
-
-    s = Solver()
-    inputs = set()
-    symbols = defaultdict(list)
-
-    for i in range(len(path) - 1):
-        edge = cfg.edges[path[i], path[i+1]]
-        print(edge)
-        if isinstance(edge["stmt"], SSkip):
-            s.add( get_bexp_symbol(s, symbols, edge["bexp"]) )
-        else:
-            add_stmt(s, symbols, edge["stmt"], inputs)
-        print(s)
-        print(dict(symbols))
-        print(inputs)
+        generate_test(cfg, path, verbose=True)
         print()
-
-    check = s.check()
-    print(check)
-    try:
-        result = dict()
-        for var in inputs:
-            result[var] = s.model()[symbols[var][0]]
-        print(result)
-    except:
-        print("No test found for path {path}".format(path=path))
