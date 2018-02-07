@@ -19,7 +19,10 @@ start = 'stmt'
 
 # Error rule for syntax errors
 def p_error(p):
-    print("Syntax error in input!")
+    if p:
+        print("Syntax error at '%s'" % p)
+    else:
+        print("Syntax error at EOI")
 
 # Build the parser
 # See https://stackoverflow.com/questions/28950925/ply-hide-output-file
