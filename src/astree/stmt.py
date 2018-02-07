@@ -41,7 +41,7 @@ class SSkip(Stmt):
     def __init__(self, label=None):
         super().__init__(typename="SSKIP", label=label)
 
-    def exec(self, state):
+    def exec(self, state=dict(), verbose=True):
         return state
 
     @property
@@ -59,13 +59,13 @@ class SAssign(Stmt):
         self.aexp = aexp
         aexp.parent = self
 
-    def exec(self, state):
+    def exec(self, state=dict(), verbose=True):
         value = self.aexp.eval(state)
         state[self.var.name] = value
         return state
 
-    def eval(self, state):
-        self.exec(state)
+    def eval(self, state=dict(), verbose=True):
+        self.exec(state, verbose)
         return state[self.var.name]
 
     @property
@@ -83,9 +83,9 @@ class SSequence(Stmt):
         for arg in args:
             arg.parent = self
 
-    def exec(self, state):
+    def exec(self, state=dict(), verbose=True):
         for child in list(self.children):
-            child.exec(state)
+            child.exec(state, verbose)
         return state
 
 
@@ -96,12 +96,14 @@ class SIf(Stmt):
         strue.parent = self
         sfalse.parent = self
 
-    def exec(self, state):
+    def exec(self, state=dict(), verbose=True):
         bexp, strue, sfalse = self.children
         if bexp.eval(state):
-            return strue.exec(state)
+            print(bexp)
+            print(bexp.eval(state))
+            return strue.exec(state, verbose)
         else:
-            return sfalse.exec(state)
+            return sfalse.exec(state, verbose)
 
 
 class SWhile(Stmt):
@@ -110,11 +112,11 @@ class SWhile(Stmt):
         bexp.parent = self
         stmt.parent = self
 
-    def exec(self, state):
+    def exec(self, state=dict(), verbose=True):
         bexp, stmt = self.children
         if bexp.eval(state):
-            stmt.exec(state)
-            return self.exec(state)
+            stmt.exec(state, verbose)
+            return self.exec(state, verbose)
         else:
             return state
 
@@ -124,9 +126,9 @@ class SInput(Stmt):
         super().__init__(typename="SINPUT", label=label)
         aexp.parent = self
 
-    def exec(self, state):
+    def exec(self, state=dict(), verbose=True):
         if isinstance(self.child, AVariable):
-            if not self.child.name in state:
+            if verbose:
                 value = input("Input : {varname} = ".format(varname=self.child.name))
                 state[self.child.name] = int(value)     # TODO: try except
         else:
@@ -147,8 +149,9 @@ class SPrint(Stmt):
         super().__init__(typename="SPRINT", label=label)
         aexp.parent = self
 
-    def exec(self, state):
-        # print(self.child.eval(state))
+    def exec(self, state=dict(), verbose=True):
+        if verbose:
+            print(self.child.eval(state))
         return state
 
     @property
