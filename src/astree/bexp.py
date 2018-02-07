@@ -96,15 +96,16 @@ class BBinOp(BExp):
     """
 
     OPERATORS = {
-        '&&': '__and__',
-        '||': '__or__',
-        '^':  '__xor__',
-        '==': '__eq__',
-        '!=': '__ne__',
-        '<':  '__lt__',
-        '<=': '__le__',
-        '>':  '__gt__',
-        '>=': '__ge__',
+        '&&': lambda b1, b2: b1 and b2,
+        '||': lambda b1, b2: b1 or b2,
+        '^':  lambda b1, b2: b1 ^ b2,
+
+        '==': lambda a1, a2: a1 == a2,
+        '!=': lambda a1, a2: a1 != a2,
+        '<':  lambda a1, a2: a1 < a2,
+        '<=': lambda a1, a2: a1 <= a2,
+        '>':  lambda a1, a2: a1 > a2,
+        '>=': lambda a1, a2: a1 >= a2,
     }
 
     def __init__(self, op, left, right):
@@ -119,7 +120,9 @@ class BBinOp(BExp):
         right.parent = self
 
     def eval(self, state):
-        return getattr(self.left, self.OPERATORS[self.op])(self.right)
+        left = self.left.eval(state)
+        right = self.right.eval(state)
+        return self.OPERATORS[self.op]( left, right )
 
     @property
     def subtypes(self):
