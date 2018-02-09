@@ -42,16 +42,54 @@ Mme Pascale Le Gall
 \tableofcontents
 \newpage
 
-\chapter*{Introduction}
-\addcontentsline{toc}{chapter}{Introduction}
-
 \chapter{Architecture du projet}
+
+\section{Pipe de traitement}
+
+Le code se divise en trois grandes parties : parsing du programme dans le langage WHILE, vérification de critères sur ce programme, génération des tests pour les critères.
+
+\subsection{Parsing}
+
+Le parsing consiste, à partir d'un programme écrit en langage WHILE, à obtenir un graphe de contrôle (CFG) représentant le dit programme. On passe pour cela par une étape intermédiaire : un arbre de syntaxe abstraite, ou AST. L'AST est une représentation du code du programme sous forme d'arbre, tandis que le CFG représente vraiment le flux du programme. 
+
+%Insérer exemples AST et CFG associés
+
+\subsubsection{Génération de l'AST}
+
+Nous utilisons pour ce faire la librairie Python ply, qui fournit une implémentation en Python du duo lex/yacc. Lex tokenize le programme en entrée en fonction de la grammaire définie, tandis que yacc prend l'entrée tokenizée et fournit l'AST. 
+
+\subsubsection{Conversion de l'AST au CFG}
+
+Il faut ensuite traduire cet AST en CFG. On utilise pour cela un algorithme récursif qui va parcourir l'arbre et construire le CFG. Chaque exécution de la fonction récursive renvoie un morceau de graphe ainsi que des arêtes sortantes à relier.
+
+Ainsi, la conversion d'un arbre ne contenant en tout et pour tout qu'une assignation va renvoyer un noeud labellisé et une arête sortante de ce noeud portant une condition \textit{True} et une commande \textit{Assign}.
+
+La conversion d'un arbre contenant un noeud While va relier les arêtes sortantes du graphe du sous-arbre au noeud parent de façon à former une boucle, etc.
+
+On ajoute enfin un tag sur les noeuds correspondant à des instructions \textit{If} ou \textit{While} pour faciliter la vérification et la génération des tests.
+
+\subsection{Vérification de critères}
+
+Nous sommes donc désormais capables d'obtenir le CFG associé à un programme écrit en langage WHILE. Nous voulons maintenant \textit{vérifier} des critères de tests pour ce programme, c'est à dire, étant donné un jeu de tests (données de départs), dire si les tests couvrent un ensemble de cas (chemins d'exécution) précis.
+
+Il faut donc commencer par exécuter le programme avec le jeu de test. Ceci se fait assez facilement, il suffit de parcourir le graphe de contrôle en maintenant un état (ensemble des variables et de leurs valeurs) et en choisissant, à chaque branchement, l'arête dont la condition est vérifiée par l'état.
+
+On obtient ainsi un ensemble de chemins d'exécution (un par valuation de départ).
+
+Parallèlement, on a un critère de test, c'est à dire un ensemble de chemins par lesquels nous voulons passer. Ainsi le critère \textit{Toutes les affectations} demande-t-il qu'à la fin de l'exécution de tous les tests, on soit passé au moins une fois par chaque arête portant une commande \textit{Assign}.
+
+Chaque critère possède son propre algorithme de génération d'éléments à vérifier en fonction du programme (bien que l'on puisse toujours se ramener à un ensemble de chemins, il était parfois plus simple de considérer un ensemble de noeuds ou d'arêtes par lesquels il faut passer).
+
+Il suffit ensuite de faire l'intersection des deux ensembles \textit{\{Chemins exécutés lors de la phase du test\}} et \textit{\{Chemins à vérifier imposés par le critère\}}.
+
 
 \section{Choix de conception}
 
 \section{Limitations adoptées}
 
 \section{Organisation du code}
+
+
 
 \chapter{Vérification des critères et génération des tests}
 % D'après le sujet, pour chaque critère :
