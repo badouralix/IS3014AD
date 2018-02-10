@@ -18,7 +18,6 @@ class Tester():
         self.usages = get_all_usages(cfg)
         self.du_paths = get_all_du_paths(cfg)
 
-
     def test_assignments(self, paths):
         assignments = self.assignments.copy()
         for path in paths:
@@ -29,7 +28,8 @@ class Tester():
     def test_decisions(self, paths):
         decisions = self.decisions.copy()
         for path in paths:
-            decisions = decisions.difference(set(path))
+            for i in range(len(path) - 1):
+                decisions.discard((path[i], path[i+1]))
         return decisions
 
 

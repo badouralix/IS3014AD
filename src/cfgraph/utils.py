@@ -35,11 +35,8 @@ def get_assignments(cfg):
 
 def get_decisions(cfg):
     """
-    Returns the set of labels whose instructions are in a conditional branch
+    Returns the set of edges whose instructions are in a conditional branch
     (if statement or while statement).
-
-    TODO: currently, only the node following the branching is added to the
-          result set. Adding all the nodes in the branch may be "sounder".
 
     Arguments:
         cfg -- control flow graph of the input program
@@ -50,10 +47,9 @@ def get_decisions(cfg):
 
     result = set()
 
-    for src, dest in cfg.edges:
-        edge = cfg.edges[src, dest]
-        if not isinstance(edge['bexp'], BConstant):
-            result.add(dest)
+    for src, dst in cfg.edges:
+        if "type" in cfg.node[src] and cfg.node[src]["type"] in ["SIF", "SHIWLE"]:
+            result.add((src, dst))
 
     return result
 
