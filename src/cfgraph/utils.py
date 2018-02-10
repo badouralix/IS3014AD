@@ -8,7 +8,7 @@ import copy
 import networkx as nx
 
 from astree.bexp import BConstant
-from astree.stmt import SAssign
+from astree.stmt import SAssign, SInput
 
 ###############################################################################
 
@@ -98,8 +98,8 @@ def get_def(cfg, node):
     result = set()
     leaving_edges = cfg.out_edges(node, data=True)
     for edge in leaving_edges:
-        if isinstance(edge[2]["stmt"], SAssign):
-            result = result.union(edge[2]["stmt"].assigned_var)
+        if isinstance(edge[2]["stmt"], SAssign) or isinstance(edge[2]["stmt"], SInput):
+            result = result.union(edge[2]["stmt"].def_var)
 
     return result
 
@@ -182,18 +182,17 @@ def get_all_usages(cfg):
 
 def get_all_du_paths(cfg):
     result = list()
-    for var, def_nodes in get_all_def(cfg).items():
+
+    all_def = get_all_def(cfg)
+    all_ref = get_all_ref(cfg)
+
+    for var, def_nodes in all_def.items():
         for def_node in def_nodes:
-            paths = list(nx.all_simple_paths(cfg, def_node, "END"))
-            direct_usages = list()
-            # Remove paths containing a def before a ref
-            for path in paths:
+            for path in gen_i_loops(cfg, i=1, start=def_node, end="END"):
                 for idx, node in enumerate(path[1:]):
-                    if var in get_def(cfg, node):
-                        break
-                    if var in get_ref(cfg, node):
-                        if path[:idx+2] not in result:
+                    if node in all_ref[var] and path[:idx+2] not in result:
                             result.append(path[:idx+2])
+                    if node in all_def[var]:
                         break
 
     return result

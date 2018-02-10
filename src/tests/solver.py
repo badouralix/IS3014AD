@@ -49,7 +49,7 @@ def generate_test(cfg, path, verbose=False):
     try:
         result = dict()
         for var in inputs:
-            result[var] = s.model()[symbols[var][0]]
+            result[var] = s.model()[symbols[var][0]]    # TODO: may be None
 
         if verbose:
             print(f"One test found for path {path}: {result}")

@@ -46,7 +46,7 @@ class SSkip(Stmt):
 
     @property
     def vars(self):
-        return {}
+        return set()
 
 
 class SAssign(Stmt):
@@ -69,7 +69,7 @@ class SAssign(Stmt):
         return state[self.var.name]
 
     @property
-    def assigned_var(self):
+    def def_var(self):
         return self.children[0].vars
 
     @property
@@ -138,8 +138,12 @@ class SInput(Stmt):
         return self.children[0]
 
     @property
-    def vars(self):
+    def def_var(self):
         return self.child.vars
+
+    @property
+    def vars(self):
+        return set()
 
 
 class SPrint(Stmt):
