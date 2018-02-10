@@ -3,7 +3,7 @@
 1:  prime := 1;
 
 2:  if (p < 2) {
-3:      prime := 0;
+3:      prime := -1;
     } else {
 
 4:      sqrt := 2;
