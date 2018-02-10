@@ -115,16 +115,16 @@ On va travailler sur le programme suivant :
 
 \begin{minipage}{0.46\textwidth}
 \begin{verbatim}
-1:  if (x <= 0) {
-2:      x := -x;
+1:  if (X <= 0) {
+2:      X := -X;
     } else {
-3:      x := 1 - x;
+3:      X := 1 - X;
     }
 
-4:  if (x == 1) {
-5:      x := 1;
+4:  if (X == 1) {
+5:      X := 1;
     } else {
-6:      x := x + 1;
+6:      X := X + 1;
     }
 \end{verbatim}
 \end{minipage}
@@ -164,9 +164,65 @@ On travaille toujours sur le programme défini en \ref{sec:affectations}.
 Le critère \textit{Toutes les décisions} demande à ce que l'on passe au moins une fois par toutes les arêtes associées à une expression booléenne. Il s'agit, en bref, de toutes les arêtes sortantes des noeuds \textit{if} et \textit{while}, ce qui est équivalent à dire qu'il faut passer par les noeuds de destination de ces arêtes.
 
 Ici, il faut donc passer par les noeuds $2, 3, 5, 6$. On retombe dans ce cas très simple sur les même éléments que le critère \textit{Toutes les affectations}, et le même jeu de tests vérifie donc les deux critères.
+
 \section{Tous les \textit{k}-chemins}
 \section{Toutes les \textit{i}-boucles}
 \section{Toutes les définitions}
+
+Le critère \textit{Toutes les définitions} demande que, pour chaque variable $X$, pour chaque noeud $u$ affectant $X$, on ait un chemin $..u...v..$ tel que $v$ utilise $X$, et qu'il n'y ait pas de réaffectation de $X$ entre $u$ et $v$.
+
+Pour vérifier ce critère, nous commençons par implémenter les fonctions \textit{def} et \textit{ref} telles que définies dans l'énoncé.
+
+On construit ensuite un dictionnaire \textit{definitions} qui associe à chaque variable $X$ l'ensemble des noeuds u tels que $X \in def(u)$.
+
+Pour chaque variable $X$, on regarde ensuite chaque chemin. Si on trouve un noeud $u$ intéressant, c'est à dire $X \in def(u)$, on suit le chemin jusqu'à trouver $v$ tel que $X \in ref(v)$. On s'assure bien sûr qu'entre $u$ et $v$, il n'y a pas de noeud $u'$ tel que $X \in ref(u')$. Si on trouve $v$, on supprime $u$ de $\textit{definitions}[X]$.
+
+Si à la fin, \textit{definitons} est vide, alors le critère est vérifié.
+
+Le programme de la partie \ref{sec:affectations} ne pourra jamais vérifier ce critère, quel que soit le jeu de test, car les affectations $5$ et $6$ ne sont jamais utilisées. Si on rajoute une commande print qui affiche une variable, ainsi qu'une nouvelle variable $Y$, on peut le réécrire :
+
+
+\begin{verbatim}
+1:  if (X <= 0) {
+2:      X := -X;
+3:		Y := 5;
+    } else {
+4:      X := 1 - X;
+    }
+
+5:  if (X == 1) {
+6:      X := 1;
+    } else {
+7:      X := X + 1;
+8:		print(Y);
+    }
+9: print(X);
+\end{verbatim}
+
+Le dictionnaire \textit{definitions} s'écrit alors :
+
+\[ \{
+	X : [2, 4, 6, 7],
+	Y : [3]
+\} \]
+
+Le jeu de tests suivant ne vérifie pas le critère :
+
+\[ \{
+	\{ X=1, Y=1},
+	\{ X=-1, Y=1 \}
+\} \]
+
+(Pas de chemin entre 3 et 8)
+
+
+Contrairement à cet autre jeu de tests :
+
+\[ \{
+	\{ X=1, Y=1},
+	\{ X=-2, Y=1 \}
+\} \]
+
 \section{Toutes les utilisations}
 \section{Tous les DU-chemins}
 \section{Toutes les conditions}
