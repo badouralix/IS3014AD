@@ -6,6 +6,7 @@
 \usepackage{geometry}
 \usepackage{tabularx}
 \usepackage{caption}
+\usepackage{amsmath}
 %\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
 %\usepackage{pdfpages}
 %\geometry{hmargin=2.5cm,vmargin=2.5cm}
@@ -224,6 +225,48 @@ Contrairement à cet autre jeu de tests :
 \} \]
 
 \section{Toutes les utilisations}
+
+Le critère \textit{Toutes les utilisations} demande que toutes ls utilisations acessibles pour chaque définitions soient exécutées au moins une fois.
+
+On crée en parcourant le graphe un dictionnaire \textit{usages} qui pour chaque variable $X$, associe à chaque noeud $u$ définissant $X$ ($X \in def(u)$) l'ensemble des noeuds $v$ successeurs de $u$ tels que $v$ utilise $X$ ($X \in ref(v)$) tels qu'il n'y ait pas de noeud $u'$ qui redéfinisse X sur le chemin de $u$ à $v$.
+
+On modifie le programme pour mieux montrer ce critère :
+\begin{verbatim}
+1:  if (X <= 0) {
+2:      X := -X;
+    } else {
+3:      X := 1 - X;
+    }
+
+4:  if (X == 1) {
+5:      X := 1;
+    } else {
+6:      X := X + 1;
+7: 		print(X);
+    }
+\end{verbatim}
+
+Le dictionnaire \textit{usages} s'écrit :
+
+\begin{align*}
+usages = \{
+			X : \{ &\\
+		&2 : 4, \\
+		&3 : 4, \\
+		&6 : 7,	\}\}
+\end{align*}
+
+Un jeu de test vérifiant ce critère pour ce programme est alors :
+
+\begin{align*}
+\{
+	\{ X : 0 \},
+	\{ X : 1 \}
+\}
+\end{align*}
+
+Notons que contrairement au critère \textit{Toutes les définitions}, le critère \textit{Toutes les utilisations} n'impose pas l'existence d'une utilisation !
+
 \section{Tous les DU-chemins}
 \section{Toutes les conditions}
 \end{document}
