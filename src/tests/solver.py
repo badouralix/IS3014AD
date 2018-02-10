@@ -11,7 +11,15 @@ from collections import defaultdict
 from z3 import *
 
 
+
+VERBOSE = False
+
+
 def generate_test(cfg, path, verbose=False):
+    # Configure verbosity
+    global VERBOSE
+    VERBOSE = verbose
+
     # Setup solver
     s = Solver()
 
@@ -56,6 +64,10 @@ def generate_test(cfg, path, verbose=False):
 def new_symbol(name, symbols):
     symbol = Int("_" + name + "_" + str(len(symbols[name])))
     symbols[name].append(symbol)
+
+    if VERBOSE:
+        print(f"Symbol {symbol} generated")
+
     return symbol
 
 
@@ -64,6 +76,9 @@ def get_aexp_symbol(s, symbols, aexp):
         return aexp.value
 
     elif isinstance(aexp, AVariable):
+        if not aexp.name in symbols:
+            new_symbol(aexp.name, symbols)
+
         return symbols[aexp.name][-1]
 
     elif isinstance(aexp, AUnOp):
