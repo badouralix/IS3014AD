@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import networkx as nx
 import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
@@ -10,6 +9,7 @@ from cfgraph.utils import get_assignments, \
                           gen_k_paths, \
                           gen_i_loops, \
                           get_all_def, \
+                          get_all_ref, \
                           get_all_du_paths
 from tests.solver import generate_test
 from utils.printer import timeit
@@ -21,7 +21,7 @@ def gen_ta(cfg):
     tests = list()
 
     for node in assign_nodes:
-        for path in nx.all_simple_paths(cfg, "START", node):
+        for path in gen_i_loops(cfg, i=1, start="START", end=node):
             test = generate_test(cfg, path)
             if not test is None:
                 tests.append(test)
@@ -42,7 +42,7 @@ def gen_td(cfg):
     tests = list()
 
     for edge in edges:
-        for path in nx.all_simple_paths(cfg, "START", edge[0]):
+        for path in gen_i_loops(cfg, i=1, start="START", end=edge[0]):
             path.append(edge[1])
             test = generate_test(cfg, path)
             if not test is None:
@@ -104,15 +104,15 @@ def gen_itb(cfg, i):
 def gen_tdef(cfg):
     def_nodes = set()
     du_paths = get_all_du_paths(cfg)
-    print(du_paths)
     tests = list()
 
     for nodes in get_all_def(cfg).values():
         def_nodes.update(nodes)
 
     for suffixpath in du_paths:
+        # TODO: we should avoid non simple paths there
         if suffixpath[0] in def_nodes:
-            for prefixpath in nx.all_simple_paths(cfg, "START", suffixpath[0]):
+            for prefixpath in gen_i_loops(cfg, i=1, start="START", end=suffixpath[0]):
                 path = prefixpath + suffixpath[1:]
                 test = generate_test(cfg, path)
                 if not test is None:
@@ -132,7 +132,28 @@ def gen_tdef(cfg):
 
 @timeit
 def gen_tu(cfg):
+    ref_nodes = set()
+    du_paths = get_all_du_paths(cfg)
     tests = list()
+
+    for nodes in get_all_ref(cfg).values():
+        ref_nodes.update(nodes)
+
+    for suffixpath in du_paths:
+        if suffixpath[-1] in ref_nodes:
+            for prefixpath in gen_i_loops(cfg, i=1, start="START", end=suffixpath[0]):
+                path = prefixpath + suffixpath[1:]
+                test = generate_test(cfg, path)
+                if not test is None:
+                    tests.append(test)
+                    ref_nodes.remove(suffixpath[-1])
+                    break
+
+    if ref_nodes:
+        print(f"No tests found for ref {ref_nodes}")
+
+    if len(tests) + len(ref_nodes) != 0:
+        print(f"Feasibility of {len(tests) / (len(tests) + len(ref_nodes)) * 100:.2f}%")
 
     tests = [dict(item) for item in set(tuple(test.items()) for test in tests)]
     print(f"Generated test : {tests}")
@@ -144,7 +165,7 @@ def gen_tdu(cfg):
     tests = list()
 
     for suffixpath in paths:
-        for prefixpath in nx.all_simple_paths(cfg, "START", suffixpath[0]):
+        for prefixpath in gen_i_loops(cfg, i=1, start="START", end=suffixpath[0]):
             path = prefixpath + suffixpath[1:]
             test = generate_test(cfg, path)
             if not test is None:
