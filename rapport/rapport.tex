@@ -56,7 +56,7 @@ Le parsing consiste, à partir d'un programme écrit en langage WHILE, à obteni
 
 \subsubsection{Génération de l'AST}
 
-Nous utilisons pour ce faire la librairie Python ply, qui fournit une implémentation en Python du duo lex/yacc. Lex tokenize le programme en entrée en fonction de la grammaire définie, tandis que yacc prend l'entrée tokenizée et fournit l'AST. 
+Nous utilisons pour ce faire la librairie Python ply, qui fournit une implémentation en Python du duo lex/yacc. Lex tokenize le programme en entrée en fonction de la grammaire définie, tandis que yacc prend l'entrée tokenizée et fournit l'AST. Nous utilisons la librairie \textit{anytree} pour manipuler les arbres.
 
 \subsubsection{Conversion de l'AST au CFG}
 
@@ -67,6 +67,8 @@ Ainsi, la conversion d'un arbre ne contenant en tout et pour tout qu'une assigna
 La conversion d'un arbre contenant un noeud While va relier les arêtes sortantes du graphe du sous-arbre au noeud parent de façon à former une boucle, etc.
 
 On ajoute enfin un tag sur les noeuds correspondant à des instructions \textit{If} ou \textit{While} pour faciliter la vérification et la génération des tests.
+
+Les graphes sont gérés par la librairie python \textit{networkx}.
 
 \subsection{Vérification de critères}
 
@@ -89,7 +91,17 @@ Il suffit ensuite de faire l'intersection des deux ensembles \textit{\{Chemins e
 
 \section{Organisation du code}
 
+Le code est organisé en modules.
 
+\begin{description}
+\item[- astree :] Contient notre structure d'AST avec les commandes et opérations définies par la sémantique opérationnelle de WHILE.
+\item[- cfgraph :] Code utilisé pour exécuter un test sur le programme. Le module utils, en particulier, contient toutes les fonctions du graphe nécessaires pour générer les éléments à vérifier pour chaque critère.
+\item[- syntax :] Contient le code du lexeur et du parseur ainsi que leur configuration
+\item[- tests :] Ce dossier contient le coeur du projet. Le module \textit{tester} contient la logique de vérification des critères : récupération des éléments à vérifier, analyse des chemins d'exécutions des tests pour y trouver les éléments. Le module \textit{generator} gère la génération des jeux de tests en faisant appel au solveur \textit{Z3}.
+\item[- utils :] Contient notamment la conversion de l'AST vers le CFG.
+\item[- input :] Contient des exemples de programmes sur lesquels on peut vérifier les critères.
+\item[- output :] Exemples de graphes (images). 
+\end{description}
 
 \chapter{Vérification des critères et génération des tests}
 % D'après le sujet, pour chaque critère :
