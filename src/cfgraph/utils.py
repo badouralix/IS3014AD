@@ -236,7 +236,7 @@ def gen_k_paths(cfg, k):
                 next_nodes.append( (succ, node_k + 1) )
 
 
-def gen_i_loops(cfg, i):
+def gen_i_loops(cfg, i, start="START", end="END"):
     """
     Generator for valid paths from START to END, with at most i loop executions.
     Implement a depth-first search.
@@ -244,8 +244,10 @@ def gen_i_loops(cfg, i):
     WARNING: an oracle is needed to throw away unfeasible paths.
 
     Arguments:
-        cfg -- Control flow graph of the input program
-        i   -- Max number of iterations for each loop
+        cfg   -- Control flow graph of the input program
+        i     -- Max number of iterations for each loop
+        start -- Start node
+        end   -- End node
     """
     assert(i >= 0)
 
@@ -256,13 +258,13 @@ def gen_i_loops(cfg, i):
     current_path = list()
 
     next_nodes = deque()            # Stack (node, node_position in valid path, current state when node added to stack)
-    next_nodes.append( ("START", 0, state) )
+    next_nodes.append( (start, 0, state) )
 
     while next_nodes:
         node, node_position, state = next_nodes.pop()
         current_path = current_path[:node_position] + [node]
 
-        if current_path[-1] == "END":
+        if current_path[-1] == end:
             yield current_path
 
         else:
