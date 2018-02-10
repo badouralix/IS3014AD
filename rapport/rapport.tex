@@ -158,6 +158,12 @@ Dans la pratique, étant donné un CFG, on récupère l'ensemble des noeuds (lab
 Il suffit ensuite de regarder lesquels de ces noeuds sont (ou non) dans les chemins des tests.
 
 \section{Toutes les décisions}
+
+On travaille toujours sur le programme défini en \ref{sec:affectations}.
+
+Le critère \textit{Toutes les décisions} demande à ce que l'on passe au moins une fois par toutes les arêtes associées à une expression booléenne. Il s'agit, en bref, de toutes les arêtes sortantes des noeuds \textit{if} et \textit{while}, ce qui est équivalent à dire qu'il faut passer par les noeuds de destination de ces arêtes.
+
+Ici, il faut donc passer par les noeuds $2, 3, 5, 6$. On retombe dans ce cas très simple sur les même éléments que le critère \textit{Toutes les affectations}, et le même jeu de tests vérifie donc les deux critères.
 \section{Tous les \textit{k}-chemins}
 \section{Toutes les \textit{i}-boucles}
 \section{Toutes les définitions}
