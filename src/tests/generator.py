@@ -4,13 +4,33 @@
 import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
-from cfgraph.utils import gen_k_paths, gen_i_loops
+from cfgraph.utils import get_assignments, gen_k_paths, gen_i_loops
 from tests.solver import generate_test
 from utils.printer import timeit
 
 
 @timeit
-def gen_k_paths_tests(cfg, k):
+def gen_ta(cfg):
+    assign_nodes = get_assignments(cfg)
+    tests = list()
+
+    for node in assign_nodes:
+        for path in gen_i_loops(cfg, i=1, start="START", end=node):
+            test = generate_test(cfg, path)
+            if not test is None:
+                tests.append(test)
+                break
+        else:
+            print(f"Node {node} is unreachable")
+
+    print(f"Feasibility of {len(tests) / len(assign_nodes) * 100:.2f}%")
+
+    tests = [dict(item) for item in set(tuple(test.items()) for test in tests)]
+    print(f"Generated test : {tests}")
+
+
+@timeit
+def gen_ktc(cfg, k):
     tests = list()
     counter = 0
 
@@ -24,11 +44,13 @@ def gen_k_paths_tests(cfg, k):
             tests.append(test)
 
     print(f"Feasibility of {len(tests) / counter * 100:.2f}%")
+
+    tests = [dict(item) for item in set(tuple(test.items()) for test in tests)]
     print(f"Generated test : {tests}")
 
 
 @timeit
-def gen_i_loops_tests(cfg, i):
+def gen_itb(cfg, i):
     tests = list()
     counter = 0
 
@@ -42,6 +64,8 @@ def gen_i_loops_tests(cfg, i):
             tests.append(test)
 
     print(f"Feasibility of {len(tests) / counter * 100:.2f}%")
+
+    tests = [dict(item) for item in set(tuple(test.items()) for test in tests)]
     print(f"Generated test : {tests}")
 
 
@@ -58,6 +82,6 @@ if __name__ == "__main__":
     ast = parser.parse(source_code)
     cfg = ast2cfg(ast)
 
-    gen_k_paths_tests(cfg, 10)
-    print()
-    gen_i_loops_tests(cfg, 1)
+    gen_ta(cfg)
+    gen_ktc(cfg, 10)
+    gen_itb(cfg, 1)
