@@ -33,13 +33,6 @@ class Tester():
         return decisions
 
 
-    def test_distance(self, paths, k):
-        k_nodes = set(node for node, distance in self.distances.items() if distance <= k)
-        for path in paths:
-            k_nodes = k_nodes.difference(set(path))
-        return k_nodes
-
-
     def test_k_path(self, paths, k):
         missing_k_paths = list()
         for k_path in gen_k_paths(self.cfg, k):
