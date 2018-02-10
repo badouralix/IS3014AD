@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import networkx as nx
 import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
-from cfgraph.utils import get_assignments, get_decisions, gen_k_paths, gen_i_loops, get_all_du_paths
+from cfgraph.utils import get_assignments, \
+                          get_decisions, \
+                          gen_k_paths, \
+                          gen_i_loops, \
+                          get_all_def, \
+                          get_all_du_paths
 from tests.solver import generate_test
 from utils.printer import timeit
 
@@ -15,7 +21,7 @@ def gen_ta(cfg):
     tests = list()
 
     for node in assign_nodes:
-        for path in gen_i_loops(cfg, i=1, start="START", end=node):
+        for path in nx.all_simple_paths(cfg, "START", node):
             test = generate_test(cfg, path)
             if not test is None:
                 tests.append(test)
@@ -36,7 +42,7 @@ def gen_td(cfg):
     tests = list()
 
     for edge in edges:
-        for path in gen_i_loops(cfg, i=1, start="START", end=edge[0]):
+        for path in nx.all_simple_paths(cfg, "START", edge[0]):
             path.append(edge[1])
             test = generate_test(cfg, path)
             if not test is None:
@@ -67,7 +73,8 @@ def gen_ktc(cfg, k):
         else:
             tests.append(test)
 
-    print(f"Feasibility of {len(tests) / counter * 100:.2f}%")
+    if counter:
+        print(f"Feasibility of {len(tests) / counter * 100:.2f}%")
 
     tests = [dict(item) for item in set(tuple(test.items()) for test in tests)]
     print(f"Generated test : {tests}")
@@ -95,7 +102,29 @@ def gen_itb(cfg, i):
 
 @timeit
 def gen_tdef(cfg):
+    def_nodes = set()
+    du_paths = get_all_du_paths(cfg)
+    print(du_paths)
     tests = list()
+
+    for nodes in get_all_def(cfg).values():
+        def_nodes.update(nodes)
+
+    for suffixpath in du_paths:
+        if suffixpath[0] in def_nodes:
+            for prefixpath in nx.all_simple_paths(cfg, "START", suffixpath[0]):
+                path = prefixpath + suffixpath[1:]
+                test = generate_test(cfg, path)
+                if not test is None:
+                    tests.append(test)
+                    def_nodes.remove(suffixpath[0])
+                    break
+
+    if def_nodes:
+        print(f"No tests found for def {def_nodes}")
+
+    if len(tests) + len(def_nodes) != 0:
+        print(f"Feasibility of {len(tests) / (len(tests) + len(def_nodes)) * 100:.2f}%")
 
     tests = [dict(item) for item in set(tuple(test.items()) for test in tests)]
     print(f"Generated test : {tests}")
@@ -114,18 +143,18 @@ def gen_tdu(cfg):
     paths = get_all_du_paths(cfg)
     tests = list()
 
-    for simple_path in paths:
-        for prefixpath in gen_i_loops(cfg, i=1, start="START", end=simple_path[0]):
-            path = prefixpath + simple_path[1:]
+    for suffixpath in paths:
+        for prefixpath in nx.all_simple_paths(cfg, "START", suffixpath[0]):
+            path = prefixpath + suffixpath[1:]
             test = generate_test(cfg, path)
             if not test is None:
                 tests.append(test)
                 break
         else:
-            print(f"Simple path {simple_path} is unfeasible")
+            print(f"Simple path {suffixpath} is unfeasible")
 
-    print(f"Feasibility of {len(tests) / len(paths) * 100:.2f}%")
-
+    if paths:
+        print(f"Feasibility of {len(tests) / len(paths) * 100:.2f}%")
 
     tests = [dict(item) for item in set(tuple(test.items()) for test in tests)]
     print(f"Generated test : {tests}")
