@@ -9,6 +9,8 @@ import time
 
 def timeit(method):
     def timed(*args, **kw):
+        print(f"Running {method.__name__}...")
+
         ts = time.time()
         result = method(*args, **kw)
         te = time.time()
