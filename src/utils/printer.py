@@ -13,7 +13,7 @@ def timeit(method):
         result = method(*args, **kw)
         te = time.time()
 
-        print(f"{method.__name__} took {(te - ts) * 1000:.2f}ms")
+        print(f"{method.__name__} took {(te - ts) * 1000:.2f}ms\n")
         return result
 
     return timed
