@@ -1,0 +1,5 @@
+0:  input(x);
+
+1:  if (true) {
+2:      print(x);
+    }

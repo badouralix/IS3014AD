@@ -4,7 +4,7 @@
 import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
-from cfgraph.utils import get_assignments, gen_k_paths, gen_i_loops
+from cfgraph.utils import get_assignments, get_decisions, gen_k_paths, gen_i_loops
 from tests.solver import generate_test
 from utils.printer import timeit
 
@@ -23,10 +23,34 @@ def gen_ta(cfg):
         else:
             print(f"Node {node} is unreachable")
 
-    print(f"Feasibility of {len(tests) / len(assign_nodes) * 100:.2f}%")
+    if assign_nodes:
+        print(f"Feasibility of {len(tests) / len(assign_nodes) * 100:.2f}%")
 
     tests = [dict(item) for item in set(tuple(test.items()) for test in tests)]
     print(f"Generated test : {tests}")
+
+
+@timeit
+def gen_td(cfg):
+    edges = get_decisions(cfg)
+    tests = list()
+
+    for edge in edges:
+        for path in gen_i_loops(cfg, i=1, start="START", end=edge[0]):
+            path.append(edge[1])
+            test = generate_test(cfg, path)
+            if not test is None:
+                tests.append(test)
+                break
+        else:
+            print(f"Edge {edge} is unreachable")
+
+    if edges:
+        print(f"Feasibility of {len(tests) / len(edges) * 100:.2f}%")
+
+    tests = [dict(item) for item in set(tuple(test.items()) for test in tests)]
+    print(f"Generated test : {tests}")
+
 
 
 @timeit
@@ -75,7 +99,7 @@ if __name__ == "__main__":
     from utils.ast2cfg import ast2cfg
 
     input_dir = "input"
-    filename = "example3.imp"
+    filename = "constant.imp"
     with open(f"{input_dir}/{filename}") as f:
         source_code = f.read()
 
@@ -83,5 +107,6 @@ if __name__ == "__main__":
     cfg = ast2cfg(ast)
 
     gen_ta(cfg)
+    gen_td(cfg)
     gen_ktc(cfg, 10)
     gen_itb(cfg, 1)
