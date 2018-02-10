@@ -5,11 +5,10 @@
 \usepackage{graphicx}
 \usepackage{geometry}
 \usepackage{tabularx}
+\usepackage{caption}
 %\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
 %\usepackage{pdfpages}
 %\geometry{hmargin=2.5cm,vmargin=2.5cm}
-
-%\newcommand{\degree}{\ensuremath{^\circ}}
 
 % Title Page
 \begin{document}
@@ -111,6 +110,53 @@ Le code est organisé en modules.
 % Et en général : relations d'ordre entre les critères
 
 \section{Toutes les affectations}
+\label{sec:affectations}
+On va travailler sur le programme suivant :
+
+\begin{minipage}{0.46\textwidth}
+\begin{verbatim}
+1:  if (x <= 0) {
+2:      x := -x;
+    } else {
+3:      x := 1 - x;
+    }
+
+4:  if (x == 1) {
+5:      x := 1;
+    } else {
+6:      x := x + 1;
+    }
+\end{verbatim}
+\end{minipage}
+\begin{minipage}{0.46\textwidth}
+	\includegraphics[scale=0.5]{pics/simpleCFG.png}
+	\captionof{figure}{CFG associé}
+\end{minipage}
+
+%Ajouter AST + CFG en illustration de la partie précédente
+
+Le critère \textit{Toutes les affectations} demande à ce que tous les labels d'affectations (ici : $2, 3, 5, 6$) apparaissent au moins une fois dans l'un des chemins d'exécution correspondant aux données de tests.
+
+Si on prend pour jeu de test :
+
+\[ \{
+	\{ X : -1\},
+	\{ X : 1\}
+\} \]
+
+On obtient les chemins d'exécutions suivants :
+\begin{description}
+\item[$\{ X : -1\}$ : ] $1, 2, 4, 5$
+\item[$\{ X : 1\}$ : ] $1, 3, 4, 6$
+\end{description}
+
+On est donc passé au moins une fois par chaque label associé à une affectation : le critère est vérifié sur ce programme et ce jeu de test.
+
+Si, en revanche, on s'était contenté d'un unique test $\{ X : -1\}$, on ne serait pas passé par les noeuds $3$ et $6$, et le critère n'aurait pas été vérifié.
+
+Dans la pratique, étant donné un CFG, on récupère l'ensemble des noeuds (labels) tels qu'une arête sortante de ce noeud porte une affectation. Ceci se fait très facilement en parcourant l'ensemble des arêtes (sans notion de chemin ici).
+Il suffit ensuite de regarder lesquels de ces noeuds sont (ou non) dans les chemins des tests.
+
 \section{Toutes les décisions}
 \section{Tous les \textit{k}-chemins}
 \section{Toutes les \textit{i}-boucles}
