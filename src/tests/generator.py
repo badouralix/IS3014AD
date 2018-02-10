@@ -4,7 +4,7 @@
 import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
-from cfgraph.utils import get_assignments, get_decisions, gen_k_paths, gen_i_loops
+from cfgraph.utils import get_assignments, get_decisions, gen_k_paths, gen_i_loops, get_all_du_paths
 from tests.solver import generate_test
 from utils.printer import timeit
 
@@ -93,13 +93,51 @@ def gen_itb(cfg, i):
     print(f"Generated test : {tests}")
 
 
+@timeit
+def gen_tdef(cfg):
+    tests = list()
+
+    tests = [dict(item) for item in set(tuple(test.items()) for test in tests)]
+    print(f"Generated test : {tests}")
+
+
+@timeit
+def gen_tu(cfg):
+    tests = list()
+
+    tests = [dict(item) for item in set(tuple(test.items()) for test in tests)]
+    print(f"Generated test : {tests}")
+
+
+@timeit
+def gen_tdu(cfg):
+    paths = get_all_du_paths(cfg)
+    tests = list()
+
+    for simple_path in paths:
+        for prefixpath in gen_i_loops(cfg, i=1, start="START", end=simple_path[0]):
+            path = prefixpath + simple_path[1:]
+            test = generate_test(cfg, path)
+            if not test is None:
+                tests.append(test)
+                break
+        else:
+            print(f"Simple path {simple_path} is unfeasible")
+
+    print(f"Feasibility of {len(tests) / len(paths) * 100:.2f}%")
+
+
+    tests = [dict(item) for item in set(tuple(test.items()) for test in tests)]
+    print(f"Generated test : {tests}")
+
+
 if __name__ == "__main__":
     from cfgraph.utils import gen_k_paths
     from syntax.parser import parser
     from utils.ast2cfg import ast2cfg
 
     input_dir = "input"
-    filename = "constant.imp"
+    filename = "example3.imp"
     with open(f"{input_dir}/{filename}") as f:
         source_code = f.read()
 
@@ -110,3 +148,6 @@ if __name__ == "__main__":
     gen_td(cfg)
     gen_ktc(cfg, 10)
     gen_itb(cfg, 1)
+    gen_tdef(cfg)
+    gen_tu(cfg)
+    gen_tdu(cfg)
