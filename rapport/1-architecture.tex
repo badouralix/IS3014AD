@@ -53,7 +53,7 @@ Le code est organisé en modules.
 \item[- astree :] Contient notre structure d'AST avec les commandes et opérations définies par la sémantique opérationnelle de WHILE.
 \item[- cfgraph :] Code utilisé pour exécuter un test sur le programme. Le module utils, en particulier, contient toutes les fonctions du graphe nécessaires pour générer les éléments à vérifier pour chaque critère.
 \item[- syntax :] Contient le code du lexeur et du parseur ainsi que leur configuration
-\item[- tests :] Ce dossier contient le coeur du projet. Le module \textit{tester} contient la logique de vérification des critères : récupération des éléments à vérifier, analyse des chemins d'exécutions des tests pour y trouver les éléments. Le module \textit{generator} gère la génération des jeux de tests en faisant appel au solveur \textit{Z3}.
+\item[- tests :] Ce dossier contient le coeur du projet. Le module \textit{testor} contient la logique de vérification des critères : récupération des éléments à vérifier, analyse des chemins d'exécutions des tests pour y trouver les éléments. Le module \textit{generator} gère la génération des jeux de tests en faisant appel au solveur \textit{Z3}.
 \item[- utils :] Contient notamment la conversion de l'AST vers le CFG.
 \item[- input :] Contient des exemples de programmes sur lesquels on peut vérifier les critères.
 \item[- output :] Exemples de graphes (images).

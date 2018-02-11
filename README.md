@@ -3,6 +3,15 @@ Course assignments
 
 ## HOW-TO
 
+### Testor
+
+To run tests on a given input file and check criteria, use the script
+`src/tests/testor.py`:
+
+```bash
+python src/tests/testor.py src/input/example.imp
+```
+
 ### Generator
 
 To generate tests on a given input file, use the script `src/tests/generator.py`:

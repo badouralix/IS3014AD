@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+
+import os, sys
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+
 from cfgraph.utils import *
 from collections import Counter
 import copy
@@ -125,3 +129,38 @@ class Tester():
             if var in get_ref(self.cfg, node):
                 return idx+start_pos
         return -1
+
+
+if __name__ == "__main__":
+    from cfgraph.runners import run_test_set
+    from syntax.parser import parser
+    from utils.ast2cfg import ast2cfg
+
+    filename = sys.argv[1]
+    with open(filename) as f:
+        source_code = f.read()
+
+    ast = parser.parse(source_code)
+    cfg = ast2cfg(ast)
+
+    test_set= [{'x': 0},
+               {'x': -1},
+               {'x': +1}]
+
+    print("== Running tests ==")
+    paths = run_test_set(cfg, test_set)
+    tester = Tester(cfg)
+    print("= Testing assignements =")
+    print(tester.test_assignments(paths))
+    print("= Testing decisions =")
+    print(tester.test_decisions(paths))
+    print("= Testing k-path (k=10) =")
+    print(tester.test_k_path(paths, k=10))
+    print("= Testing i-loop (i=2) =")
+    print(tester.test_i_loop(paths, i=2))
+    print("= Testing definitions =")
+    print(tester.test_definitions(paths))
+    print("= Testing usages =")
+    print(tester.test_usages(paths))
+    print("= Testing DU paths =")
+    print(tester.test_du_paths(paths))
