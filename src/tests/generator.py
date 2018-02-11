@@ -69,7 +69,7 @@ def gen_ktc(cfg, k):
 
         test = generate_test(cfg, path)
         if test is None:
-            print(f"Path {path} is unfeasible")
+            print(f"Path {path} is infeasible")
         else:
             tests.append(test)
 
@@ -90,7 +90,7 @@ def gen_itb(cfg, i):
 
         test = generate_test(cfg, path)
         if test is None:
-            print(f"Path {path} is unfeasible")
+            print(f"Path {path} is infeasible")
         else:
             tests.append(test)
 
@@ -109,16 +109,21 @@ def gen_tdef(cfg):
     for nodes in get_all_def(cfg).values():
         def_nodes.update(nodes)
 
-    for suffixpath in du_paths:
+    for subpath in du_paths:
         # TODO: we should avoid non simple paths there
-        if suffixpath[0] in def_nodes:
-            for prefixpath in gen_i_loops(cfg, i=1, start="START", end=suffixpath[0]):
-                path = prefixpath + suffixpath[1:]
-                test = generate_test(cfg, path)
-                if not test is None:
-                    tests.append(test)
-                    def_nodes.remove(suffixpath[0])
-                    break
+        if subpath[0] in def_nodes:
+            for prefixpath in gen_i_loops(cfg, i=1, start="START", end=subpath[0]):
+                for suffixpath in gen_i_loops(cfg, i=1, start=subpath[-1], end="END"):
+                    path = prefixpath + subpath[1:] + suffixpath[1:]
+                    path = prefixpath + subpath[1:]
+                    test = generate_test(cfg, path)
+                    if not test is None:
+                        tests.append(test)
+                        def_nodes.remove(subpath[0])
+                        break
+                else:
+                    continue
+                break
 
     if def_nodes:
         print(f"No tests found for def {def_nodes}")
@@ -139,15 +144,19 @@ def gen_tu(cfg):
     for nodes in get_all_ref(cfg).values():
         ref_nodes.update(nodes)
 
-    for suffixpath in du_paths:
-        if suffixpath[-1] in ref_nodes:
-            for prefixpath in gen_i_loops(cfg, i=1, start="START", end=suffixpath[0]):
-                path = prefixpath + suffixpath[1:]
-                test = generate_test(cfg, path)
-                if not test is None:
-                    tests.append(test)
-                    ref_nodes.remove(suffixpath[-1])
-                    break
+    for subpath in du_paths:
+        if subpath[-1] in ref_nodes:
+            for prefixpath in gen_i_loops(cfg, i=1, start="START", end=subpath[0]):
+                for suffixpath in gen_i_loops(cfg, i=1, start=subpath[-1], end="END"):
+                    path = prefixpath + subpath[1:] + suffixpath[1:]
+                    test = generate_test(cfg, path)
+                    if not test is None:
+                        tests.append(test)
+                        ref_nodes.remove(subpath[-1])
+                        break
+                else:
+                    continue
+                break
 
     if ref_nodes:
         print(f"No tests found for ref {ref_nodes}")
@@ -164,15 +173,19 @@ def gen_tdu(cfg):
     paths = get_all_du_paths(cfg)
     tests = list()
 
-    for suffixpath in paths:
-        for prefixpath in gen_i_loops(cfg, i=1, start="START", end=suffixpath[0]):
-            path = prefixpath + suffixpath[1:]
-            test = generate_test(cfg, path)
-            if not test is None:
-                tests.append(test)
-                break
+    for subpath in paths:
+        for prefixpath in gen_i_loops(cfg, i=1, start="START", end=subpath[0]):
+            for suffixpath in gen_i_loops(cfg, i=1, start=subpath[-1], end="END"):
+                path = prefixpath + subpath[1:] + suffixpath[1:]
+                test = generate_test(cfg, path)
+                if not test is None:
+                    tests.append(test)
+                    break
+            else:
+                continue
+            break
         else:
-            print(f"Simple path {suffixpath} is unfeasible")
+            print(f"Simple path {subpath} is infeasible")
 
     if paths:
         print(f"Feasibility of {len(tests) / len(paths) * 100:.2f}%")
