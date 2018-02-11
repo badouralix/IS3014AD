@@ -29,7 +29,7 @@ du problème de contraintes sont effectuées dans le fichier
 La génération des chemins est propre à chaque critère et est détaillée
 ci-dessous. Sauf explicitement dit, lorsque l'on dira que l'on génére tous les
 chemins entre deux nodes, on sous-entendra \textit{tous les chemins simples}.
-Il s'agit d'un choix tout à fait discutable, mais étant donné l'indécitabilité
+Il s'agit d'un choix tout à fait discutable, mais étant donné l'indécidabilité
 du problème de la génération des tests, il faut de toute manière se fixer une
 limite raisonnable.
 
@@ -106,3 +106,68 @@ La différence étant qu'il faut trouver un test pour chaque chemin. Et si le
 solveur ne trouve pas de test admissible, le chemin n'est pas faisable.
 
 \section{Résultats}
+
+Pour l'exemple \texttt{src/input/example3.imp} qui contient à la fois des
+branchement \texttt{SIf} et des boucles \texttt{SWhile}, nous obtenons pour
+$k = 10$ et $i = 1$:
+
+\bigskip
+
+\begin{lstlisting}[language=bash]
+$ python src/tests/generator.py src/input/example3.imp
+
+Running gen_ta...
+Feasibility of 100.00%
+Generated test : [{'x': 0, 'z': 0}, {'x': -1, 'z': None},
+                  {'x': 0, 'z': None}]
+gen_ta took 47.37ms
+
+Running gen_td...
+Feasibility of 100.00%
+Generated test : [{'x': -1, 'z': None}, {'x': 0, 'z': None}]
+gen_td took 21.23ms
+
+Running gen_ktc...
+Feasibility of 100.00%
+Generated test : [{'x': 0, 'z': 0}, {'x': -1, 'z': None},
+                  {'x': 0, 'z': 1}]
+gen_ktc took 25.48ms
+
+Running gen_itb...
+Path ['START', 0, 1, 2, 4, 5, 6, 7, 8, 7, 9, 'END'] is unfeasible
+Feasibility of 75.00%
+Generated test : [{'x': 0, 'z': 0}, {'x': -1, 'z': None},
+                  {'x': 0, 'z': 1}]
+gen_itb took 34.75ms
+
+Running gen_tdef...
+Feasibility of 100.00%
+Generated test : [{'x': 0, 'z': 0}, {'x': 0, 'z': 1},
+                  {'x': -1, 'z': None}, {'x': 0, 'z': None},
+                  {'x': None, 'z': None}]
+gen_tdef took 58.07ms
+
+Running gen_tu...
+Feasibility of 100.00%
+Generated test : [{'x': 0, 'z': 1}, {'x': 0, 'z': 0},
+                  {'x': -1, 'z': None}, {'x': 0, 'z': None},
+                  {'x': None, 'z': None}]
+gen_tu took 52.44ms
+
+Running gen_tdu...
+Simple path [4, 5, 6, 7, 8] is unfeasible
+Simple path [4, 5, 6, 7, 8, 7, 9] is unfeasible
+Feasibility of 84.62%
+Generated test : [{'x': 0, 'z': 1}, {'x': 0, 'z': 0},
+                  {'x': -1, 'z': None}, {'x': 0, 'z': None},
+                  {'x': None, 'z': None}]
+gen_tdu took 103.47ms
+\end{lstlisting}
+
+\bigskip
+
+On notera deux choses. D'une part, certains critères ne peuvent pas être
+validés à 100\%. Il se s'agit pas d'une erreur du solveur, mais bien d'une
+détection de chemins non traversables quelle que soit l'entrée utilisateur.
+D'autre part, le solveur peut attribuer une valeur \texttt{None}, ce qui
+signifie que la valeur de la variable peut-être quelconque pour ce test.
