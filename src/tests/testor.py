@@ -2,12 +2,13 @@
 # -*- coding: utf-8 -*-
 
 
+from collections import Counter
+import copy
 import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
 from cfgraph.utils import *
-from collections import Counter
-import copy
+from utils.printer import timeit
 
 class Tester():
     # TODO: Avoid checking non-reachable paths (e.g. if False ...)
@@ -22,37 +23,67 @@ class Tester():
         self.usages = get_all_usages(cfg)
         self.du_paths = get_all_du_paths(cfg)
 
+
+    @timeit
     def test_assignments(self, paths):
         assignments = self.assignments.copy()
         for path in paths:
             assignments = assignments.difference(set(path))
+
+        if assignments:
+            print(f"Uncovered assignments: {assignments}")
+        print(f"Coverage: {(1- len(assignments) / len(self.assignments)) * 100:.2f}%")
+
         return assignments
 
 
+    @timeit
     def test_decisions(self, paths):
         decisions = self.decisions.copy()
         for path in paths:
             for i in range(len(path) - 1):
                 decisions.discard((path[i], path[i+1]))
+
+        if decisions:
+            print(f"Uncovered decisions: {decisions}")
+        print(f"Coverage: {(1- len(decisions) / len(self.decisions)) * 100:.2f}%")
+
         return decisions
 
 
+    @timeit
     def test_k_path(self, paths, k):
-        missing_k_paths = list()
-        for k_path in gen_k_paths(self.cfg, k):
-            if not k_path in paths:
-                missing_k_paths.append(k_path)
-        return missing_k_paths
+        missing_paths = list()
+        counter = 0
+
+        for path in gen_k_paths(self.cfg, k):
+            counter += 1
+            if not path in paths:
+                print(f"Path {path} is not covered")
+                missing_paths.append(path)
+
+        print(f"Coverage: {(1- len(missing_paths) / counter) * 100:.2f}%")
+
+        return missing_paths
 
 
+    @timeit
     def test_i_loop(self, paths, i):
-        missing_i_loops = list()
-        for i_loop in gen_i_loops(self.cfg, i):
-            if not i_loop in paths:
-                missing_i_loops.append(i_loop)
-        return missing_i_loops
+        missing_loops = list()
+        counter = 0
+
+        for path in gen_i_loops(self.cfg, i):
+            counter += 1
+            if not path in paths:
+                print(f"Path {path} is not covered")
+                missing_loops.append(path)
+
+        print(f"Coverage: {(1- len(missing_loops) / counter) * 100:.2f}%")
+
+        return missing_loops
 
 
+    @timeit
     def test_definitions(self, paths):
         """
         Each variable definition must be followed by an usage (ref) of this var, with no def
@@ -79,8 +110,9 @@ class Tester():
         return all_defs
 
 
+    @timeit
     def test_usages(self, paths):
-        # TODO: Probably does'nt work on loops (or does it ?)
+        # TODO: Probably doesn't work on loops (or does it ?)
         usages = copy.deepcopy(self.usages)
 
         for path in paths:
@@ -100,6 +132,7 @@ class Tester():
         return usages
 
 
+    @timeit
     def test_du_paths(self, paths):
         du_paths = copy.deepcopy(self.du_paths)
         for path in paths:
@@ -150,17 +183,18 @@ if __name__ == "__main__":
     print("== Running tests ==")
     paths = run_test_set(cfg, test_set)
     tester = Tester(cfg)
+
     print("= Testing assignements =")
-    print(tester.test_assignments(paths))
+    tester.test_assignments(paths)
     print("= Testing decisions =")
-    print(tester.test_decisions(paths))
+    tester.test_decisions(paths)
     print("= Testing k-path (k=10) =")
-    print(tester.test_k_path(paths, k=10))
+    tester.test_k_path(paths, k=10)
     print("= Testing i-loop (i=2) =")
-    print(tester.test_i_loop(paths, i=2))
+    tester.test_i_loop(paths, i=2)
     print("= Testing definitions =")
-    print(tester.test_definitions(paths))
+    tester.test_definitions(paths)
     print("= Testing usages =")
-    print(tester.test_usages(paths))
+    tester.test_usages(paths)
     print("= Testing DU paths =")
-    print(tester.test_du_paths(paths))
+    tester.test_du_paths(paths)
