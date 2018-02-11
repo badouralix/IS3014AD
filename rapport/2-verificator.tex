@@ -254,4 +254,7 @@ On regarde ensuite ces chemins à la recherche de paire $(u, v)$ telles que $u$ 
 Lorsqu'on trouve une telle paire, on stocke le chemin entre $u$ et $v$ dans un dictionnaire \textit{du\_paths}.
 
 Il suffit ensuite de chercher ces morceaux de chemins dans les chemins d'exécutions correspondants aux tests.
+
 \section{Toutes les conditions}
+
+Nous n'avons pas implémenté ce critère faute de temps. Il est toutefois possible de tirer parti de notre structure d'AST : on peut envisager qu'au moment de la conversion entre l'AST et le CFG on transforme chaque décision en un ensemble de noeuds \textit{If} correctement hiérarchisés. On pourrait ensuite vérifier le critère \textit{Toutes les décisions} sur ce nouveau CFG plus détaillé.
