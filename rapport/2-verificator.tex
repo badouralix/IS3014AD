@@ -92,6 +92,56 @@ Le jeu de tests suivant permet d'atteindre la couverture maximale :
 
 
 \section{Toutes les \textit{i}-boucles}
+
+On cherche ici tous les chemins pour lesquels les boucles while sont exécutées au plus $i$ fois. Attention, les "compteurs" des boucles imbriquées internes doivent être remis à zéro à chaque itération de la boucle externe. Le critère peut aussi se formuler "tous les chemins pour lesquels les boucles whiles sont exécutées au plus $i$ fois \textbf{à la suite}.
+
+Sur le même principe que les $k$-chemins, on réalisé un générateur de chemins d'intérêt basé sur un parcours en profondeur. On maintient cette fois un compteur par boucle, et on veille à réinitialiser les compteurs des boucles imbriquées internes lorsque c'est nécessaire.
+
+Il suffit ensuite de comparer les chemins obtenus avec ceux des tests.
+
+Voici un programme comportant une boucle :
+
+\begin{minipage}{0.46\textwidth}
+\begin{verbatim}
+1:  if (x >= 0) {
+2:      x := x + 1;
+    } else {
+3:      x := x - 1;
+4:      y := 3;
+5:      z := y + 1;
+    }
+
+6:  while (z <= 0) {
+7:      z := x + 1;
+    }
+
+8:  print(x);
+\end{verbatim}
+\end{minipage}
+\begin{minipage}{0.46\textwidth}
+	\includegraphics[scale=0.5]{pics/whileCFG.png}
+	\captionof{figure}{CFG associé}
+\end{minipage}
+
+Les chemins à parcourir pour \textit{Toutes les 1-boucles} sont :
+
+\begin{align*}
+\{
+&[START, 1, 2, 6, 8, END], \\
+&[START, 1, 2, 6, 7, 6, 8, END], \\
+&[START, 1, 3, 4, 5, 6, 8, END], \\
+&[START, 1, 3, 4, 5, 6, 7, 6, 8, END] -> Infaisable
+\}
+\end{align*}
+
+Le jeu de test suivant vérifie le critère :
+
+\[ \{
+	\{ X : -1, Z : 0\},
+	\{ X : 0, Z : 0\};
+	\{ X : 0, Z : 1\},
+\} \]
+
 \section{Toutes les définitions}
 
 Le critère \textit{Toutes les définitions} demande que, pour chaque variable $X$, pour chaque noeud $u$ affectant $X$, on ait un chemin $..u...v..$ tel que $v$ utilise $X$, et qu'il n'y ait pas de réaffectation de $X$ entre $u$ et $v$.
