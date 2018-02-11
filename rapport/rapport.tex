@@ -167,6 +167,35 @@ Le critère \textit{Toutes les décisions} demande à ce que l'on passe au moins
 Ici, il faut donc passer par les noeuds $2, 3, 5, 6$. On retombe dans ce cas très simple sur les même éléments que le critère \textit{Toutes les affectations}, et le même jeu de tests vérifie donc les deux critères.
 
 \section{Tous les \textit{k}-chemins}
+
+Ce critère demande que chaque chemin d'exécution de longueur inférieure ou égale à $k$ soit exécuté.
+
+On commence donc par implémenter un générateur qui va renvoyer tous les chemins correspondants. Pour ce faire, on réalise un parcours en profondeur du graphe, où l'on s'arête lorsqu'on à un chemin complet (noeud \textit{END} atteint) ou lorsque l'on a atteint la longueur maximale $k$.
+
+Une fois que l'on a l'ensemble des chemins à vérifier, il suffit de comparer cet ensemble avec celui des chemins exécutés par les tests.
+
+Sur le programme de la partie \ref{sec:affectations}, pour le critère \textit{Tous les 10-chemins}, il faut vérifier les chemins suivants (en fait, tous, car on a pris $k$ grand):
+
+\begin{align*}
+\{
+	&[START, 1, 2, 4, 5, END],\\
+	&[START, 1, 2, 4, 6, END],\\
+	&[START, 1, 3, 4, 5, END],\\
+	&[START, 1, 3, 4, 6, END]
+\}
+\end{align*}
+
+On note que le chemin $[START, 1, 3, 4, 5, END]$ n'est pas faisable. Malheureusement, cela ne peut se détecter qu'à l'étape de génération des tests  : d'où l'importance de signaler à l'utilisateur quels sont les chemins manquants afin qu'il puisse décider de lui-même si ou non la couverture peut-être améliorée en complétant le jeu de tests.
+
+Le jeu de tests suivant permet d'atteindre la couverture maximale :
+
+\[ \{
+	\{ X : -1\},
+	\{ X : 1\};
+	\{ X : 3\},
+\} \]
+
+
 \section{Toutes les \textit{i}-boucles}
 \section{Toutes les définitions}
 
@@ -277,7 +306,7 @@ On récupère tous les chemins simples entre chaque noeud de définition ($def(u
 
 On regarde ensuite ces chemins à la recherche de paire $(u, v)$ telles que $u$ définit $X$, $v$ utilise $X$, et il n'y a pas de redéfinition de $X$ entre $u$ et $v$.
 
-Lorsqu'on trouve une telle paire, on stocke le chemin entre $u$ et $v$ dans un dictionnaire \textit{du_paths}.
+Lorsqu'on trouve une telle paire, on stocke le chemin entre $u$ et $v$ dans un dictionnaire \textit{du\_paths}.
 
 Il suffit ensuite de chercher ces morceaux de chemins dans les chemins d'exécutions correspondants aux tests.
 \section{Toutes les conditions}
