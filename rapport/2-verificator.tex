@@ -258,3 +258,14 @@ Il suffit ensuite de chercher ces morceaux de chemins dans les chemins d'exécut
 \section{Toutes les conditions}
 
 Nous n'avons pas implémenté ce critère faute de temps. Il est toutefois possible de tirer parti de notre structure d'AST : on peut envisager qu'au moment de la conversion entre l'AST et le CFG on transforme chaque décision en un ensemble de noeuds \textit{If} correctement hiérarchisés. On pourrait ensuite vérifier le critère \textit{Toutes les décisions} sur ce nouveau CFG plus détaillé.
+
+\section{Relations entre critères}
+
+Pour deux critères $C_{1}$ et $C_{2}$, on dit que $C_{1}$ est \textit{plus fort} que $C_{2}$ si tout jeu de test satifaisant $C_{1}$ satisfait aussi $C_{2}$. On notera cette relation $C_{1} \succ C_{2}$.
+
+Ici, nous avons les relations suivantes :
+
+\begin{align*}
+\textit{Tous les DU-chemins} &\succ \textit{Toutes les utilisations}\\
+\textit{Toutes les conditions} &\succ \textit{Toutes les décisions}
+\end{align*}
