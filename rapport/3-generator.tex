@@ -86,7 +86,10 @@ node \texttt{nref} associé et un chemin, associé à la paire
 
 \subsection{Toutes les utilisations}
 
-Le critère \textit{toutes les utilisations} est un critère sur les paires de
+Le critère \textit{toutes les utilisations} est un critère sur les nodes. Pour
+chaque variable et pour chaque node utilisant cette variable, noté
+\texttt{nref}, on cherche les définitions associées \texttt{ndef}
+(~\textit{ie.} dans redéfinition intermédiaire.~) On forme ainsi des paires de
 nodes entre la définition d'une variable et son utilisation (~sans redéfinition
 intermédiaire.~) Pour chaque paire de nodes \texttt{(ndef, nref)}, on génère
 tous les chemins entre \texttt{START} et \texttt{ndef} et entre \texttt{ndef}
