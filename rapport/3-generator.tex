@@ -39,20 +39,20 @@ Le critère \textit{toutes les affectations} est un critère sur les nodes du
 CFG. Pour chaque node \texttt{SAssign}, on va générer tous les chemins jusqu'à
 ce node, en partant du node \texttt{START}.
 
-On obtient un test pour un node lorsqu'on trouve au moins un chemin généré
+On obtient un test pour un node lorsque l'on trouve au moins un chemin généré
 faisable.
 
 \subsection{Toutes les décisions}
 
 Le critère \textit{toutes les décisions} est un critère sur les edges du CFG.
-On souhaite passer par chaque edge sortant d'un node de type \texttt{SIF} ou
-\texttt{SWHILE}. On peut donc se ramener à un critère d'accessibilité au node
-de décision (~\texttt{CIF} ou \texttt{CWHILE}~). On génère tous les chemins
+On souhaite passer par chaque edge sortant d'un node de type \texttt{SIf} ou
+\texttt{SWhile}. On peut donc se ramener à un critère d'accessibilité au node
+de décision (~\texttt{SIf} ou \texttt{SWhile}~). On génère tous les chemins
 jusqu'au node, puis pour chaque chemin, on génère deux chemins : un chemin où
 l'on a rajouté l'edge associé à la décision \texttt{true}, un autre chemin où
 l'on a rajouté l'edge associé à la décision \texttt{false}.
 
-On obtient un test pour un edge lorsqu'on trouve au moins un chemin généré
+On obtient un test pour un edge lorsque l'on trouve au moins un chemin généré
 faisable.
 
 \subsection{Tous les $k$-chemins}
@@ -71,8 +71,38 @@ le solveur ne trouve pas de test admissible, le chemin n'est pas faisable.
 
 \subsection{Toutes les définitions}
 
+Le critère \textit{toutes les définitions} est un critère sur les nodes de type
+\textit{SAssign}. Pour chaque node \texttt{ndef}, on cherche les utilisations
+associées \texttt{nref} (~\textit{ie.} sans redéfinition intermédiaire.~) On
+forme ainsi, pour chaque node \texttt{ndef}, un ensemble de paires de nodes
+\texttt{(ndef, nref)}. Pour chaque paire, on génère tous les chemins entre
+\texttt{START} et \texttt{ndef} et entre \texttt{ndef} et \texttt{nref}. On
+concatène deux sous-chemins pour obtenir un chemin pour la paire
+\texttt{(ndef, nref)}.
+
+On obtient un test pour un node \texttt{ndef} lorsque l'on trouve au moins un
+node \texttt{nref} associé et un chemin, associé à la paire
+\texttt{(ndef, nref)}, faisable.
+
 \subsection{Toutes les utilisations}
 
+Le critère \textit{toutes les utilisations} est un critère sur les paires de
+nodes entre la définition d'une variable et son utilisation (~sans redéfinition
+intermédiaire.~) Pour chaque paire de nodes \texttt{(ndef, nref)}, on génère
+tous les chemins entre \texttt{START} et \texttt{ndef} et entre \texttt{ndef}
+et \texttt{nref}. On concatène deux sous-chemins pour obtenir un chemin pour la
+paire \texttt{(ndef, nref)}.
+
+On obtient un test pour une paire \texttt{(ndef, nref)} lorsque l'on trouve au
+moins un chemin généré faisable.
+
 \subsection{Tous les DU-chemins}
+
+Le critère \textit{tous les DU-chemins} est assez similaire au critère
+\textit{toutes les utilisations}. De la même manière, on génère un ensemble de
+chemins pour une paire \texttt{(ndef, nref)} donnée.
+
+La différence étant qu'il faut trouver un test pour chaque chemin. Et si le
+solveur ne trouve pas de test admissible, le chemin n'est pas faisable.
 
 \section{Résultats}
