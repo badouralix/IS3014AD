@@ -182,13 +182,11 @@ def gen_tdu(cfg):
 
 
 if __name__ == "__main__":
-    from cfgraph.utils import gen_k_paths
     from syntax.parser import parser
     from utils.ast2cfg import ast2cfg
 
-    input_dir = "input"
-    filename = "example3.imp"
-    with open(f"{input_dir}/{filename}") as f:
+    filename = sys.argv[1]
+    with open(filename) as f:
         source_code = f.read()
 
     ast = parser.parse(source_code)

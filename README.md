@@ -1,6 +1,16 @@
 # IS3014AD
 Course assignments
 
+## HOW-TO
+
+### Generator
+
+To generate tests on a given input file, use the script `src/tests/generator.py`:
+
+```bash
+python src/tests/generator.py src/input/example.imp
+```
+
 ## Thoughts
 
 ### CFG
