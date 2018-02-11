@@ -268,5 +268,17 @@ Un jeu de test vérifiant ce critère pour ce programme est alors :
 Notons que contrairement au critère \textit{Toutes les définitions}, le critère \textit{Toutes les utilisations} n'impose pas l'existence d'une utilisation !
 
 \section{Tous les DU-chemins}
+
+Tous les chemins simples entre une définition de $X$ et une utilisation de $X$ sans redéfinition doivent être exécutés au moins une fois.
+
+Le critère \textit{Toutes les utilisations} demandait simplement qu'au moins un chemin entre une paire (utilisation, définition) soit exécuté, ce critère-ci demande que tous les chemins simples le soient.
+
+On récupère tous les chemins simples entre chaque noeud de définition ($def(u) \neq \emptyset$) et $END$ grâce à la librairie \textit{networkx}.
+
+On regarde ensuite ces chemins à la recherche de paire $(u, v)$ telles que $u$ définit $X$, $v$ utilise $X$, et il n'y a pas de redéfinition de $X$ entre $u$ et $v$.
+
+Lorsqu'on trouve une telle paire, on stocke le chemin entre $u$ et $v$ dans un dictionnaire \textit{du_paths}.
+
+Il suffit ensuite de chercher ces morceaux de chemins dans les chemins d'exécutions correspondants aux tests.
 \section{Toutes les conditions}
 \end{document}
