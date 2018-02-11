@@ -57,7 +57,17 @@ faisable.
 
 \subsection{Tous les $k$-chemins}
 
+Le critère \textit{tous les $k$-chemins} est un critère sur les chemins du CFG.
+On utilise donc directement le générateur de \texttt{k-path} du fichier
+\texttt{src/cfgraph/utils.py}. Il faut trouver un test pour chaque chemin. Si
+le solveur ne trouve pas de test admissible, le chemin n'est pas faisable.
+
 \subsection{Toutes les $i$-boucles}
+
+Le critère \textit{toutes les $i$-boucles} est un critère sur les chemins du CFG.
+On utilise donc directement le générateur de \texttt{i-loop} du fichier
+\texttt{src/cfgraph/utils.py}. Il faut trouver un test pour chaque chemin. Si
+le solveur ne trouve pas de test admissible, le chemin n'est pas faisable.
 
 \subsection{Toutes les définitions}
 
