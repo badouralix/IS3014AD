@@ -50,7 +50,7 @@ Le code se divise en trois grandes parties : parsing du programme dans le langag
 
 \subsection{Parsing}
 
-Le parsing consiste, à partir d'un programme écrit en langage WHILE, à obtenir un graphe de contrôle (CFG) représentant le dit programme. On passe pour cela par une étape intermédiaire : un arbre de syntaxe abstraite, ou AST. L'AST est une représentation du code du programme sous forme d'arbre, tandis que le CFG représente vraiment le flux du programme. 
+Le parsing consiste, à partir d'un programme écrit en langage WHILE, à obtenir un graphe de contrôle (CFG) représentant le dit programme. On passe pour cela par une étape intermédiaire : un arbre de syntaxe abstraite, ou AST. L'AST est une représentation du code du programme sous forme d'arbre, tandis que le CFG représente vraiment le flux du programme.
 
 %Insérer exemples AST et CFG associés
 
@@ -100,10 +100,10 @@ Le code est organisé en modules.
 \item[- tests :] Ce dossier contient le coeur du projet. Le module \textit{tester} contient la logique de vérification des critères : récupération des éléments à vérifier, analyse des chemins d'exécutions des tests pour y trouver les éléments. Le module \textit{generator} gère la génération des jeux de tests en faisant appel au solveur \textit{Z3}.
 \item[- utils :] Contient notamment la conversion de l'AST vers le CFG.
 \item[- input :] Contient des exemples de programmes sur lesquels on peut vérifier les critères.
-\item[- output :] Exemples de graphes (images). 
+\item[- output :] Exemples de graphes (images).
 \end{description}
 
-\chapter{Vérification des critères et génération des tests}
+\chapter{Vérification des critères}
 % D'après le sujet, pour chaque critère :
 % - Jeux de tests satisfaisant et ne satisfaisant pas le critère
 % - Mécanisme de vérification
@@ -310,4 +310,77 @@ Lorsqu'on trouve une telle paire, on stocke le chemin entre $u$ et $v$ dans un d
 
 Il suffit ensuite de chercher ces morceaux de chemins dans les chemins d'exécutions correspondants aux tests.
 \section{Toutes les conditions}
+
+\chapter{Génération des tests}
+
+\section{Implémentation}
+
+On adopte la stratégie générale suivante pour générer les tests associés à un
+critère donné :
+
+\begin{itemize}
+	\item générer un ensemble de chemins par lesquels on veut passer --- en
+	fonction du critère, on voudra passer par \textbf{tous} les chemins, ou
+	par \textbf{au moins} un chemin
+	\item pour chaque chemin, faire une exécution symbolique --- on notera
+	l'utilisation de symboles \textbf{uniques} associés à chaque variable
+	explicite ou implicite (~\textit{ie.} les registres \texttt{\_reg}, qui
+	enregistrent les calculent intermédiaires~)
+	\item chaque exécution symbolique fournit des contraintes entre les
+	symboles : donner ces contraintes au solveur Z3
+	\item obtenir un test associé à un chemin si le problème est satisfiable
+\end{itemize}
+
+\bigskip
+
+L'exécution symbolique à partir d'un chemin sur le CFG ainsi que la résolution
+du problème de contraintes sont effectuées dans le fichier
+\texttt{src/tests/solver.py}.
+
+\bigskip
+
+La génération des chemins est propre à chaque critère et est détaillée
+ci-dessous. Sauf explicitement dit, lorsque l'on dira que l'on génére tous les
+chemins entre deux nodes, on sous-entendra \textit{tous les chemins simples}.
+Il s'agit d'un choix tout à fait discutable, mais étant donné l'indécitabilité
+du problème de la génération des tests, il faut de toute manière se fixer une
+limite raisonnable.
+
+\subsection{Toutes les affectations}
+
+Le critère \textit{toutes les affectations} est un critère sur les nodes du
+CFG. Pour chaque node \texttt{SAssign}, on va générer tous les chemins jusqu'à
+ce node, en partant du node \texttt{START}.
+
+On obtient un test pour un node lorsqu'on trouve au moins un chemin généré
+faisable.
+
+\subsection{Toutes les décisions}
+
+Le critère \textit{toutes les décisions} est un critère sur les edges du CFG.
+On souhaite passer par chaque edge sortant d'un node de type \texttt{SIF} ou
+\texttt{SWHILE}. On peut donc se ramener à un critère d'accessibilité au node
+de décision (~\texttt{CIF} ou \texttt{CWHILE}~). On génère tous les chemins
+jusqu'au node, puis pour chaque chemin, on génère deux chemins : un chemin où
+l'on a rajouté l'edge associé à la décision \texttt{true}, un autre chemin où
+l'on a rajouté l'edge associé à la décision \texttt{false}.
+
+On obtient un test pour un edge lorsqu'on trouve au moins un chemin généré
+faisable.
+
+\subsection{Tous les $k$-chemins}
+
+\subsection{Toutes les $i$-boucles}
+
+\subsection{Toutes les définitions}
+
+\subsection{Toutes les utilisations}
+
+\subsection{Tous les DU-chemins}
+
+\section{Résultats}
+
+
+
+
 \end{document}
