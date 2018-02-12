@@ -135,11 +135,17 @@ class Tester():
     @timeit
     def test_du_paths(self, paths):
         du_paths = copy.deepcopy(self.du_paths)
+
         for path in paths:
             local_du_paths = copy.deepcopy(du_paths)
             for du_path in local_du_paths:
                 if Tester.path_in_path(du_path, path) > -1:
                     du_paths.remove(du_path)
+
+        for path in du_paths:
+            print(f"Paths {path} is not covered")
+        print(f"Coverage: {(1- len(du_paths) / len(self.du_paths)) * 100:.2f}%")
+
         return du_paths
 
 
